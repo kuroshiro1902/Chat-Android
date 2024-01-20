@@ -16,6 +16,7 @@ export class Player {
     this.nsp = namespace;
     this.events = {
       'join-room': this._onJoinRoom,
+      'leave-room': this._onLeaveRoom,
       'disconnect': this._onDisconnect,
       'move': this._onMove
     }
@@ -41,13 +42,21 @@ export class Player {
     }
   }
 
-  private _onMove(move: Move){
-    // this.socket.on
-    this.nsp.emit('move', JSON.stringify(move));
+  private _onLeaveRoom(){
+    this.inRoomId = undefined;
+    this.socket.to(this.inRoomId!).emit('leave-room', this.playerId);
   }
+
+  private _onMove(move: Move){
+    this.socket.to(this.inRoomId!).emit('move', JSON.stringify(move));
+  }
+  
 
   private _onDisconnect(){
     console.log(this.playerId + ' disconnected.');
-    if(this.inRoomId) ROOMS.deleteFromRoom(this.playerId, this.inRoomId!);
+    if(this.inRoomId){
+      this.inRoomId = undefined;
+      ROOMS.deleteFromRoom(this.playerId, this.inRoomId!);
+    }
   }
 } 
