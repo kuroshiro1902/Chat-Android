@@ -18,11 +18,11 @@ var timer = null;
 var config = {
   draggable: true,
   position: 'start',
-  onDragStart,
-  onDrop,
-  onMouseoutSquare,
-  onMouseoverSquare,
-  onSnapEnd,
+  onDragStart: onDragStart,
+  onDrop: onDrop,
+  onMouseoutSquare: onMouseoutSquare,
+  onMouseoverSquare: onMouseoverSquare,
+  onSnapEnd: onSnapEnd,
 };
 
 board = new Chessboard('myBoard', config);
@@ -322,7 +322,6 @@ function onDragStart(source, piece) {
 }
 
 function onDrop(source, target) {
-  console.log("drop!");
   undo_stack = [];
   removeGreySquares();
 
@@ -350,16 +349,17 @@ function onDrop(source, target) {
     .find('.square-' + squareToHighlight)
     .addClass('highlight-' + colorToHighlight);
 
-  if (!checkStatus('black'));
-  {
-    // Make the best move for black
-    window.setTimeout(function () {
-      makeBestMove('b');
-      window.setTimeout(function () {
-        showHint();
-      }, 250);
-    }, 250);
-  }
+  // if (!checkStatus('black'));
+  // {
+  //   // Make the best move for black
+  //   window.setTimeout(function () {
+  //     makeBestMove('b');
+  //     window.setTimeout(function () {
+  //       showHint();
+  //     }, 250);
+  //   }, 250);
+  // }
+  client.emit('move', move)
 }
 
 function onMouseoverSquare(square, piece) {
@@ -386,6 +386,5 @@ function onMouseoutSquare(square, piece) {
 }
 
 function onSnapEnd() {
-  console.log("snapend!")
   board.position(chess.fen());
 }

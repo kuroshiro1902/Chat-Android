@@ -1,25 +1,24 @@
-import { Server as IOServer } from 'socket.io';
+import { Server as IOServer, Namespace } from 'socket.io';
 import { Server } from 'http';
-import { Chess } from 'chess.js';
-
-const chess = new Chess();
+import { Player } from './models/Player.model';
 
 export function Game(server: Server) {
-  
   const io = new IOServer(server, {
     cors: {
-      // origin: [...clientENV.url],
+      origin: '*',
       methods: ['GET', 'POST'],
       credentials: true,
     },
   });
-  
-  const gameNsp = io.of('/game');
-  gameNsp.on('connection', (socket) => {
-    console.log(socket.id + " connected");
-    
-    socket.on('check', () => {});
-  });
-  console.log('game socket run');
-  return { gameNsp };
+  return { 
+    server: io,
+    start: ()=>{
+      const gameNsp = io.of('game');
+      gameNsp.on('connection', (socket) => {
+        const player = new Player(socket, gameNsp );
+        player.init();
+        //
+      });
+    }
+  };
 }

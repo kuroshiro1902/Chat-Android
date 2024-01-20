@@ -23,11 +23,8 @@ package-lock.json
 *.sln
 *.sw?
 
-# styles and libs
-chess.js
-chessboard.js
-jquery.js
+# libs
+libs/*
+chessboard.css
 bootstrap.min.css
-bootstrap.bundle.min.js
-socket-io.min.js
-fontawesome.js
+bootstrap.min.js

@@ -8,30 +8,24 @@
     <meta name="description" content="Chess Game.">
     <title>Chess Game</title>
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="./assets/bootstrap.min.css">
+    <link rel="stylesheet" 
+        href="libs/bootstrap.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="./assets/main.css">
-    <!-- Google Icons (Material Design) -->
-    <link rel="stylesheet" href="./assets/MaterialIcons.css">
-    <!-- Font Awesome -->
-    <script src="./assets/fontawesome.js"></script>
-    <!-- jQuery --> 
+    <link rel="stylesheet" href="css/main.css">
     <script
-        src="./assets/jquery.js">
+        src="libs/jquery.min.js">
     </script>
     <!-- Chessboard JS -->
-    <link rel="stylesheet" href="./assets/chessboard.css">
-    <script defer src="./js/chessboard.js"></script>
+    <link rel="stylesheet"
+        href="libs/chessboard.css">
+    <script defer src="libs/chessboard.min.js"></script>
     <!-- Chess JS (slightly modified) -->
-    <script defer src="js/chess.js"></script>
-    <!-- Socket.io -->
-    <script defer src="assets/socket-io.min.js"></script>
+    <script defer src="libs/chess.js"></script>
     <!-- Bootstrap JS --> 
-    <script defer
-        src="assets/bootstrap.bundle.min.js">
-    </script>
-
-    <title>Chess</title>
+    <script defer src="libs/bootstrap.min.js"></script>
+    <!-- Socket.io-client -->
+    <script defer src="libs/socket.io.min.js"></script>
+    <title>Document</title>
 </head>
 
 <body>
@@ -42,11 +36,11 @@
                     <h1 class="text-align-center">Chess Game</h1>
                     <div class="row justify-content-center">
                         <span id="position-count">0</span>
-                         positions are evaluated. Time:
+                        &nbsp positions are evaluated. Time:&nbsp
                         <span id="time">0</span>s.
                     </div>
                     <div class="row mb-3 justify-content-center">
-                        Speed:  <span id="positions-per-s">0</span>  positions/s.
+                        Speed: &nbsp <span id="positions-per-s">0</span> &nbsp positions/s.
                     </div>
                     <div id="setting">
                         <div class="card">
@@ -178,11 +172,16 @@
                 </div>
             </div>
         </div>
-        <button id="connect-socket">Connect</button>
     </main>
+    <button id="join-game">Join game</button>
+    <form id="room-form">
+        <input name="roomId" placeholder="Room id (anything)" />
+        <button>join room</button>
+    </form>
+
+    <script defer src="js/Socket.js"></script>
     <script defer src="js/Game.js"></script>
     <script defer src="js/Chessbot.js"></script>
-    <script defer src="src/main.ts"></script>
 </body>
 
 </html>
