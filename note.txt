@@ -1,1 +1,0 @@
-hỏi cô xem chia theo fe-be-db được ko, hay phải chia theo chức năng
