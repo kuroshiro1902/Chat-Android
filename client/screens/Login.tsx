@@ -6,6 +6,7 @@ import axios from "axios";
 import { server } from "../environments";
 import { UserContext } from "../contexts/User";
 import { IUser } from "../models/user.model";
+import Loading from "../components/Loading";
 
 const path = (mode: 'login' | 'signup') =>`/auth/${mode}`;
 function Login({navigation}: any) {
@@ -14,7 +15,7 @@ function Login({navigation}: any) {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('')
   const [mode, setMode] = useState<'login' | 'signup'>('login');
 
@@ -33,9 +34,11 @@ function Login({navigation}: any) {
           const _user = JSON.parse(localUser);
           const _token = JSON.parse(localToken);
           console.log(_user, _token);
-          handleSuccess(_user, _token)
+          handleSuccess(_user, _token);
         }
-      } catch (error) {}
+      } catch (error) {
+        setIsLoading(_=>false);
+      }
     }
     getUser();
   }, []);
@@ -49,23 +52,26 @@ function Login({navigation}: any) {
       handleSuccess(user, token);
     })
     .catch((error) => {
-      setError(error.response?.data?.message ?? 'Error! Try again later.')
-      
-    })
-    .finally(() => {
+      setError(error.response?.data?.message ?? 'Error! Try again later.');
       setIsLoading(_ => false);
     })
   }
 
-  const handleSuccess = async (user: IUser, token: string) => {
-    await AsyncStorage.setItem('user', JSON.stringify(user));
-    await AsyncStorage.setItem('token', JSON.stringify(token));
-    setUser(_=>user);
-    setToken(_=>token);
-    navigation.replace('Home');
+  const handleSuccess = (user: IUser, token: string) => {
+    setTimeout(async ()=>{
+      await AsyncStorage.setItem('user', JSON.stringify(user));
+      await AsyncStorage.setItem('token', JSON.stringify(token));
+      setUser(_=>user);
+      setToken(_=>token);
+      navigation.navigate('Home');
+      setIsLoading(_ => false);
+    }, 1000)
+    // navigation.replace('Home');
   }
 
   return ( 
+    <>
+    {isLoading && <Loading/>}
     <View style={styles.container}>
       <Image style={styles.logo} source={require('../assets/logo/logo.png')}></Image>
       <Text style={styles.title}>{mode === 'login' ? 'Đăng nhập' : 'Đăng kí'}</Text>
@@ -117,6 +123,7 @@ function Login({navigation}: any) {
         </Pressable>
       </View>
     </View>
+    </>
    );
 }
 

@@ -1,17 +1,18 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StyleSheet } from 'react-native';
-import Login from './screens/Login';
-import Home from './screens/Home';
 import UserProvider from './contexts/User';
+import Sidebar from './screens/Sidebar';
 
 const Stack = createNativeStackNavigator();
+
 
 export default function App() {
   return (
     <UserProvider>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Sidebar />
+        {/* <Stack.Navigator>
           <Stack.Screen
             name='Login'
             component={Login}
@@ -24,7 +25,7 @@ export default function App() {
             options={{ title: 'Chess - PTIT Android' }}
           >
           </Stack.Screen>
-        </Stack.Navigator>
+        </Stack.Navigator> */}
       </NavigationContainer>
     </UserProvider>
   );
