@@ -7,6 +7,7 @@ import { server } from "../environments";
 import { UserContext } from "../contexts/User";
 import { IUser } from "../models/user.model";
 import Loading from "../components/Loading";
+import { useNavigation } from "@react-navigation/native";
 
 const path = (mode: 'login' | 'signup') =>`/auth/${mode}`;
 function Login({navigation}: any) {
@@ -35,6 +36,9 @@ function Login({navigation}: any) {
           const _token = JSON.parse(localToken);
           console.log(_user, _token);
           handleSuccess(_user, _token);
+        }
+        else {
+          setIsLoading(_=>false);
         }
       } catch (error) {
         setIsLoading(_=>false);
@@ -65,7 +69,7 @@ function Login({navigation}: any) {
       setToken(_=>token);
       navigation.navigate('Home');
       setIsLoading(_ => false);
-    }, 1000)
+    }, 0)
     // navigation.replace('Home');
   }
 

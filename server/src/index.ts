@@ -6,6 +6,7 @@ import database from './database';
 import { Game } from './game';
 import env from './env';
 import cors from 'cors'
+import { authSocketMiddleware } from './middlewares/auth.middleware';
 
 const app = express();
 app.use(cors());
@@ -14,6 +15,8 @@ app.use(router);
 app.use(database);
 
 const httpServer = new Server(app);
+const gameServer = Game(httpServer);
+gameServer.server.use(authSocketMiddleware);
 
 database.listen(env.DB_PORT, () => {
   console.log('Database listening on port ' + env.DB_PORT);
@@ -23,4 +26,4 @@ httpServer.listen(env.PORT, () => {
   console.log('Server listening on port ' + env.PORT);
 });
 
-Game(httpServer).start();
+gameServer.start();

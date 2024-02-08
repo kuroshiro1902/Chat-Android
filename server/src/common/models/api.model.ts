@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { IUser } from './user.model';
 
 export interface IApiResponse {
   isSuccess?: boolean;
@@ -7,5 +8,7 @@ export interface IApiResponse {
 }
 
 export type ApiRequest = Request;
+
+export type ProtectedApiRequest = Request & {user: IUser} 
 
 export type ApiResponse = Response<IApiResponse>;

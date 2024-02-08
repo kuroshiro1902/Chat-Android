@@ -1,5 +1,6 @@
 import { createContext, useState } from "react";
 import { IUser } from "../models/user.model";
+import { IRoom } from "../models/room.model";
 
 export interface UserData {
   user: IUser | null,
@@ -11,6 +12,8 @@ export const UserContext = createContext<UserData>({} as UserData)
 function UserProvider({children}: any) {
   const [user, setUser] = useState<IUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [room, setRoom] = useState<IRoom | null>(null);
+  
   return (
     <UserContext.Provider value={{user, token, setUser, setToken}}>
       {children}

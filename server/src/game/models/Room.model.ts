@@ -1,8 +1,12 @@
+import { Chess } from 'chess.js';
+
 export class Room {
   id: string;
   playerIds: string[] = [];
   isStarted = false;
-  constructor (id: string) {
+  chess: Chess = new Chess();
+
+  constructor(id: string) {
     this.id = id;
   }
 
@@ -10,14 +14,18 @@ export class Room {
     if (this.playerIds.length < 2) {
       this.playerIds.push(playerId);
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }
-  
+
+  /**
+   * Trả về số player còn lại trong phòng
+   * @param playerId
+   * @returns
+   */
   removePlayer(playerId: string) {
     this.playerIds = this.playerIds.filter((pid) => pid !== playerId);
-    return true;
+    return this.playerIds.length;
   }
 }

@@ -5,12 +5,16 @@ const user = {
   name: 'Player ' + id,
 }
 const client = io('http://localhost:3000/game?id='+id, {autoConnect: false});
-client.connect();
 
 client.on('connected', (id)=>{
   console.log("Your id: ", id);
   
 })
+
+client.on("connect_error", (err) => {
+  console.log(err instanceof Error); // true
+  console.log(err.message); // not authorized
+});
 
 client.on('joined-room', (data)=>{
   console.log(JSON.parse(data));
@@ -35,3 +39,5 @@ $('form#room-form').on('submit', (e)=>{
   e.preventDefault();
   client.emit('join-room', e.target.roomId.value )
 })
+
+client.connect();

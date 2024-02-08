@@ -1,6 +1,7 @@
-import { Server as IOServer, Namespace } from 'socket.io';
+import { Server as IOServer } from 'socket.io';
 import { Server } from 'http';
-import { Player } from './models/Player.model';
+import { Player } from './player';
+import { authSocketMiddleware } from '../middlewares/auth.middleware';
 
 export function Game(server: Server) {
   const io = new IOServer(server, {
@@ -14,9 +15,9 @@ export function Game(server: Server) {
     server: io,
     start: ()=>{
       const gameNsp = io.of('game');
+      gameNsp.use(authSocketMiddleware);
       gameNsp.on('connection', (socket) => {
-        const player = new Player(socket, gameNsp );
-        player.init();
+        Player(socket, gameNsp );
         //
       });
     }
