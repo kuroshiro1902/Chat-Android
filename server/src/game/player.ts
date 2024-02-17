@@ -8,25 +8,25 @@ export function Player(socket: Socket, namespace: Namespace) {
   let inRoomId: string | undefined = undefined;
   let chess: Chess | undefined = undefined;
 
-  const _onJoinRoom = (roomId?: string) => {
-    console.log('join room', roomId);
-    
+  const _onJoinRoom = (roomId?: string) => {    
     const room = ROOMS.addToRoom(playerId, roomId);
     if (room) {
       socket.join(room.id);
       inRoomId = room.id;
       chess = room.chess;
-      const sendPacket = {id: room.id, isStarted: room.isStarted, playerIds: room.playerIds};
+      const sendPacket = {playerId, id: room.id, isStarted: room.isStarted, playerIds: room.playerIds};
       socket.emit('joined-room', sendPacket);
-      socket.to(room.id).emit('joined-room', sendPacket);
+      socket.to(room.id).emit('opponent-joined-room', sendPacket);
     } else {
       socket.emit('room-full');
     }
   };
 
   const _onLeaveRoom = () => {
+    // Kiểm tra xem game đấu tại phòng có đang diễn ra không, nếu có thì trừ elo của người rời và cộng elo cho người chơi còn lại
+    //
     ROOMS.deleteFromRoom(playerId, inRoomId!);
-    socket.to(inRoomId!).emit('leave-room', playerId);
+    socket.to(inRoomId!).emit('opponent-left-room', playerId);
   };
 
   const _onChat = (message: IChatMessage) => {

@@ -11,10 +11,12 @@ class Rooms {
 
   addToRoom(playerId: string, roomId?: string) {
     const _roomId = roomId ?? (playerId + '_' + new Date().getTime());
-    if (!this.isExisted(_roomId) && !this.isPlayerInRoom[playerId]) {
-      this.isPlayerInRoom[playerId] = true;
+    if (!this.isExisted(_roomId)){
       this._value[_roomId] = new Room(_roomId);
-    };
+    }
+    if (!this.isPlayerInRoom[playerId]){
+      this.isPlayerInRoom[playerId] = true;
+    }
     const isSuccess = this._value[_roomId]?.addPlayer(playerId);
     return isSuccess ? this._value[_roomId] : undefined;
   }

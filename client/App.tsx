@@ -1,9 +1,11 @@
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StyleSheet } from 'react-native';
+import { AppRegistry, StyleSheet } from 'react-native';
 import UserProvider from './contexts/User';
 import Sidebar from './screens/Sidebar';
 import GameProvider from './contexts/Game';
+import { registerRootComponent } from 'expo';
+import { Platform } from 'react-native';
 
 // const Stack = createNativeStackNavigator();
 
@@ -48,3 +50,10 @@ function Game() {
 //     justifyContent: 'center',
 //   },
 // });
+
+// AppRegistry.registerComponent('android-client', () => App);
+
+// if (Platform.OS === 'web') {
+//   const rootTag = document.getElementById('root') || document.getElementById('X');
+//   AppRegistry.runApplication('X', { rootTag });
+// }

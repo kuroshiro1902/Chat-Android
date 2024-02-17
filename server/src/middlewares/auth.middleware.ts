@@ -40,12 +40,14 @@ export function authSocketMiddleware(socket: Socket, next: any){
     socket.disconnect(true);
   }
   if(!token) {
+    socket.emit('no-token');
     error();
   }
   try {
-    const decoded = jwt.verify(token, env.SECRET_KEY!) as IUserDTO;
+    const decoded = jwt.verify(token, env.SECRET_KEY!) as IUserDTO;  
     next();
   } catch (e) {
+    socket.emit('token-expired');
     error();
   }
 }

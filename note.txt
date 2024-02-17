@@ -1,0 +1,7 @@
+- Làm chức năng "sẵn sàng", khi cả 2 người chơi cùng sẵn sàng thì mới bắt đầu game
+ + Thêm thuộc tính playerReadyCount vào room
+ + emit sự kiện ready
+
+- Chức năng nếu như ván đấu đang diễn ra mà có 1 người rời room thì người đó bị trừ elo, người còn lại được cộng elo
+- Chức năng chat
+- Chức năng đếm thời gian 

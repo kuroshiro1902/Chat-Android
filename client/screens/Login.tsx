@@ -1,7 +1,7 @@
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { color, theme } from "../theme";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { server } from "../environments";
 import { UserContext } from "../contexts/User";
@@ -22,28 +22,28 @@ function Login({navigation}: any) {
 
   const toggleMode = () => setMode(prev => prev === 'login' ? 'signup' : 'login');
 
-  useEffect(() => {
-    const getUser = async ()=>{
-      try {
-        const localUser = await AsyncStorage.getItem('user');
-        const localToken = await AsyncStorage.getItem('token');
-        if (localUser && localToken) {
-          //   const _token = JSON.parse(localToken);
-          //   const res = await axios.post(server.url + path('login'), {token: _token});
-          //   const {user, token} = res.data.data;
-          //   handleSuccess(user, token);
-          const _user = JSON.parse(localUser);
-          const _token = JSON.parse(localToken);
-          console.log(_user, _token);
-          handleSuccess(_user, _token);
-        }
-        else {
-          setIsLoading(_=>false);
-        }
-      } catch (error) {
-        setIsLoading(_=>false);
+  const getUser = useCallback(async () => {
+    try {
+      const localUser = await AsyncStorage.getItem('user');
+      const localToken = await AsyncStorage.getItem('token');
+      if (localUser && localToken) {
+        // setUsername(JSON.parse(localUser).username)
+        //
+        const _user = JSON.parse(localUser);
+        const _token = JSON.parse(localToken);
+        console.log(_user, _token);
+        handleSuccess(_user, _token);
       }
     }
+    catch (error) {
+      // setIsLoading(_=>false);
+    }
+    finally {
+      setIsLoading(_=>false);
+    }
+  }, []);
+
+  useEffect(() => {
     getUser();
   }, []);
 
@@ -90,7 +90,6 @@ function Login({navigation}: any) {
       <TextInput
         style={theme.input}
         value={username}
-        
         onChangeText={setUsername}
         placeholder="Tên đăng nhập"
       />
@@ -99,6 +98,11 @@ function Login({navigation}: any) {
         placeholder="Mật khẩu"
         value={password}
         onChangeText={setPassword}
+        onKeyPress={(e: any)=>{
+          if (e.keyCode === 13) {
+            submit();
+          }
+        }}
         secureTextEntry={true}
       />
       <Text style={{color: color.red}}>{error}</Text>
@@ -114,7 +118,7 @@ function Login({navigation}: any) {
         {!isLoading &&
           <Pressable
             style={{...theme.button, paddingHorizontal: 18}}
-            onPress={()=>submit()}
+            onPress={submit}
             >
             <Text style={{color: 'inherit', fontSize: 28}}>Submit</Text>
           </Pressable>
