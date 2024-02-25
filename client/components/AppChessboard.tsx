@@ -5,18 +5,19 @@ import { color } from "../theme";
 import WhiteText from "./WhiteText";
 
 interface props {
-  isStarted: boolean
+  isStarted: boolean,
+  handleReady: () => void,
 }
-function AppChessboard({isStarted}: props) {
+function AppChessboard({isStarted, handleReady}: props) {
   const chessboardRef = useRef<ChessboardRef>(null);
   return ( 
     <View style={styles.container}>
       {isStarted && <View style={styles.overlay}>
-        <Pressable style={styles.startBtn}>
+        <Pressable style={styles.startBtn} onPress={handleReady}>
           <WhiteText style={{fontSize: 24}}>Sẵn sàng</WhiteText>
         </Pressable>
       </View>}
-      <Chessboard onMove={(info)=> console.log(info.move)} ref={chessboardRef} />
+      <Chessboard onMove={(info)=> console.log(info.move)} ref={chessboardRef} boardSize={window.innerWidth}/>
     </View>
    );
 }

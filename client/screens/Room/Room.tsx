@@ -31,7 +31,7 @@ function Room({navigation}: any) {
   const { roomId } = route.params as any;
 
   const {user} = useContext(UserContext);
-  const {opponent, leaveRoom} = useContext(GameContext)
+  const {opponent, readyPlayers, leaveRoom, ready} = useContext(GameContext);
 
   const [iconName, setIconName] = useState('copy');
   const historyViewRef = useRef<any>();
@@ -86,6 +86,11 @@ function Room({navigation}: any) {
         <Text>Thời gian mỗi lượt: <Text style={{fontWeight: '500', color: color.darkGreen}}>30s</Text></Text>
         <Text>Trò chuyện: <Text style={{fontWeight: '500', color: color.darkGreen}}>Bật</Text></Text>
       </View>
+      {/* <View>
+        <Text>
+          <Text style={{color: color.orange, textAlign: 'center', fontSize: 18}}>{playerReadyCount}</Text>/2 ready
+        </Text>
+      </View> */}
       <View id='history'>
         <ScrollView
           horizontal
@@ -98,7 +103,7 @@ function Room({navigation}: any) {
       </View>
       <View id='main' style={styles.main}>
         <View id='chessboard'>
-          <AppChessboard isStarted={true} />
+          <AppChessboard isStarted={true} handleReady={ready} />
         </View>
         <View id='progress' style={{padding: 4}}>
           <View style={{borderRadius: 4, overflow: 'hidden', backgroundColor: color.gray, width: '100%', height: 24}}>
@@ -108,8 +113,8 @@ function Room({navigation}: any) {
         </View>
       </View>
       <View id='player-stats' style={{display: 'flex', flexDirection:'row', justifyContent: 'space-between', gap: 4}}>
-          <PlayerStat player={user} />
-          {opponent && <PlayerStat player={opponent} right />}
+          <PlayerStat player={user} ready={readyPlayers.self} />
+          {opponent && <PlayerStat player={opponent} right ready={readyPlayers.opponent} />}
       </View>
       <View style={styles.bottomMenu}>
         <BottomMenuBtn title='Rời' iconName='log-out' onPress={()=>setSubmitHandler(bottomMenuOpts.leave)} />

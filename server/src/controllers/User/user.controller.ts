@@ -20,7 +20,7 @@ class UserController {
           .json({ message: 'Invalid Id!' });
       }
 
-      const user = await this._findOneById(playerId);
+      const user = await this.findOneByIdFn(playerId);
 
       if (!user) {
         return res
@@ -34,7 +34,7 @@ class UserController {
     }
   }
 
-  private async _findOneById(id: string) {
+  async findOneByIdFn(id: string) {
     const res = await axios.get<IUser[]>(
       userDbPath + paramsSerialize({ id })
     );
