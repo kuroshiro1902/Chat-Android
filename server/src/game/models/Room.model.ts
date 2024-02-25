@@ -5,6 +5,7 @@ export class Room {
   playerIds: string[] = [];
   isStarted = false;
   readyPlayers: {[playerId: string]: boolean} = {};
+  hostId: string = '';
   chess: Chess = new Chess();
 
   constructor(id: string) {
@@ -18,6 +19,7 @@ export class Room {
   addPlayer(playerId: string) {
     if (this.playerIds.length < 2) {
       this.playerIds.push(playerId);
+      this.setHost(playerId);
       this.playerUnready(playerId)
       return true;
     } else {
@@ -33,6 +35,7 @@ export class Room {
   removePlayer(playerId: string) {
     this.playerUnready(playerId);
     this.playerIds = this.playerIds.filter((pid) => pid !== playerId);
+    if(this.playerIds[0]) this.setHost(this.playerIds[0]);
     this.isStarted = false;
     return this.playerIds.length;
   }
@@ -49,5 +52,11 @@ export class Room {
       this.readyPlayers[playerId] = false;
     }
     return this.readyPlayers;
+  }
+
+  private setHost(playerId: string){
+    if(this.playerIds.length === 1){
+      this.hostId = this.playerIds[0]
+    }
   }
 }

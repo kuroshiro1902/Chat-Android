@@ -31,11 +31,12 @@ function Room({navigation}: any) {
   const { roomId } = route.params as any;
 
   const {user} = useContext(UserContext);
-  const {opponent, readyPlayers, leaveRoom, ready} = useContext(GameContext);
+  const {opponent, readyPlayers, isStarted, hostId, leaveRoom, ready, unready, start} = useContext(GameContext);
 
   const [iconName, setIconName] = useState('copy');
   const historyViewRef = useRef<any>();
 
+  const [isReady, setIsReady] = useState(false);
   const [evaluationValue, setEvaluationValue] = useState(0);
 
   const bottomMenuOpts: {[key: string]: IBottomMenuOpt} = useMemo(()=>({
@@ -52,6 +53,25 @@ function Room({navigation}: any) {
     setIconName('check');
     setTimeout(() => setIconName('copy'), 1500);
   }, []);
+
+  const handleReady = () => {
+    if(readyPlayers.self){
+      setIsReady(false);
+      unready();
+      return;
+    }
+    if(!readyPlayers.self){
+      setIsReady(true)
+      ready();
+    }
+  }
+
+  const handleStartCb: () => {canStart: boolean, handleStart: ()=> void} = () => {
+    if(readyPlayers.self && readyPlayers.opponent && hostId === ''+user?.id){
+      return {canStart: true, handleStart: start}
+    }
+    else return {canStart: false, handleStart: ()=>{}}
+  }
 
   useEffect(() => {
     // console.clear();
@@ -103,7 +123,7 @@ function Room({navigation}: any) {
       </View>
       <View id='main' style={styles.main}>
         <View id='chessboard'>
-          <AppChessboard isStarted={true} handleReady={ready} />
+          <AppChessboard isStarted={isStarted} isReady={isReady} handleReady={handleReady} handleStartCb={handleStartCb} />
         </View>
         <View id='progress' style={{padding: 4}}>
           <View style={{borderRadius: 4, overflow: 'hidden', backgroundColor: color.gray, width: '100%', height: 24}}>

@@ -20,7 +20,7 @@ export function Player(socket: Socket, namespace: Namespace) {
       const self = await userController.findOneByIdFn(playerId);
       const _opponentId = room.getOpponentId(playerId);
       const opponent = _opponentId ? await userController.findOneByIdFn(_opponentId) : null;
-      const joinedRoomPacket = {id: room.id, isStarted: room.isStarted, opponent: opponent};
+      const joinedRoomPacket = {id: room.id, isStarted: room.isStarted, hostId: room.hostId, opponent: opponent};
       const opponentJoinedRoomPacket = {...joinedRoomPacket, opponent: self};
       socket.emit('joined-room', joinedRoomPacket);
       //
@@ -40,7 +40,8 @@ export function Player(socket: Socket, namespace: Namespace) {
     // Kiểm tra xem game đấu tại phòng có đang diễn ra không, nếu có thì trừ elo của người rời và cộng elo cho người chơi còn lại
     //
     ROOMS.deleteFromRoom(playerId, inRoomId!);
-    socket.to(inRoomId!).emit('opponent-left-room', playerId);
+    socket.to(inRoomId!).emit('opponent-left-room', playerId)
+    socket.leave(inRoomId!);
   };
 
   const _onChat = (message: IChatMessage) => {
@@ -63,6 +64,15 @@ export function Player(socket: Socket, namespace: Namespace) {
     socket.to(inRoomId!).emit('ready', {self: opponent, opponent: self});
   }
 
+  const _onUnready = () => {
+    const readyPlayers = room!.playerUnready(''+playerId);
+    const self = readyPlayers[playerId];
+    const _opponentId = room!.getOpponentId(''+playerId);
+    const opponent = _opponentId ? readyPlayers[_opponentId] : false;
+    socket.emit('ready',{self,opponent})
+    socket.to(inRoomId!).emit('ready', {self: opponent, opponent: self});
+  }
+
   const _onMove = (move: Move) => {
     socket.to(inRoomId!).emit('move', JSON.stringify(move));
   };
@@ -71,6 +81,7 @@ export function Player(socket: Socket, namespace: Namespace) {
     'join-room': _onJoinRoom,
     'leave-room': _onLeaveRoom,
     'ready': _onReady,
+    'unready': _onUnready,
     disconnect: _onDisconnect,
     move: _onMove,
     chat: _onChat,
