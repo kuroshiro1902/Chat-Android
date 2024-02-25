@@ -1,6 +1,5 @@
 import { memo, useEffect, useRef } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-// import Chessboard, { ChessboardRef } from "react-native-chessboard";
+import { Pressable, StyleSheet, View } from "react-native";
 import Chessboard, {ChessboardRef} from "../Chessboard";
 import { color } from "../theme";
 import WhiteText from "./WhiteText";
@@ -33,16 +32,11 @@ const PLAYER_PROPS = {
 function AppChessboard({isStarted, isReady, playerColor, isTurn, handleReady, handleStartCb, handleMove, move}: props) {
   const chessboardRef = useRef<ChessboardRef>(null);
   const {canStart, handleStart} = handleStartCb();
-
   useEffect(() => {
-    chessboardRef.current?.resetBoard(PLAYER_PROPS.fen[playerColor]);
+    // chessboardRef.current?.resetBoard(PLAYER_PROPS.fen[playerColor]);
   }, [playerColor, isStarted]);
 
   useEffect(() => {
-    console.log('move: ', move);
-    console.log('state: ',chessboardRef.current?.getState());
-    
-    
     if(move){
       chessboardRef.current?.move(move);
     }
@@ -64,10 +58,10 @@ function AppChessboard({isStarted, isReady, playerColor, isTurn, handleReady, ha
         <View style={styles.notTurnOverlay}></View>
       }
       <Chessboard
-        onMove={({move})=> handleMove(move)}
+        onMove={({move})=> {handleMove(move)}}
         ref={chessboardRef} boardSize={window.innerWidth}
         // fen={PLAYER_PROPS.fen[playerColor]}
-        // playerColor={PLAYER_PROPS.color[playerColor] as PlayerColor}
+        playerColor={PLAYER_PROPS.color[playerColor] as PlayerColor}
       />
     </View>
    );
