@@ -31,7 +31,10 @@ function Room({navigation}: any) {
   const { roomId } = route.params as any;
 
   const {user} = useContext(UserContext);
-  const {opponent, readyPlayers, isStarted, hostId, leaveRoom, ready, unready, start} = useContext(GameContext);
+  const {
+    opponent, readyPlayers, isStarted, hostId, playerColor, isTurn, currentMove,
+    leaveRoom, ready, unready, start, move
+  } = useContext(GameContext);
 
   const [iconName, setIconName] = useState('copy');
   const historyViewRef = useRef<any>();
@@ -123,7 +126,22 @@ function Room({navigation}: any) {
       </View>
       <View id='main' style={styles.main}>
         <View id='chessboard'>
-          <AppChessboard isStarted={isStarted} isReady={isReady} handleReady={handleReady} handleStartCb={handleStartCb} />
+          <AppChessboard
+            move={currentMove}
+            isStarted={isStarted}
+            isReady={isReady}
+            handleReady={handleReady}
+            handleStartCb={handleStartCb}
+            playerColor={playerColor}
+            isTurn={isTurn}
+            handleMove={move}
+          />
+          {isStarted && 
+            <View style={{marginTop: 6}}>
+              {isTurn && <Text style={{color: color.green, fontSize: 20, textAlign: 'center'}}>Lượt của bạn!</Text>}
+              {!isTurn && <Text style={{color: color.gray, fontSize: 20, textAlign: 'center'}}>Lượt đối thủ</Text>}
+            </View>
+          }
         </View>
         <View id='progress' style={{padding: 4}}>
           <View style={{borderRadius: 4, overflow: 'hidden', backgroundColor: color.gray, width: '100%', height: 24}}>

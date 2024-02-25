@@ -4,6 +4,7 @@ import { Chess, Move } from 'chess.js';
 import { IChatMessage } from './models/ChatMessage.model';
 import { Room } from './models/Room.model';
 import userController from '../controllers/User/user.controller';
+import generatePlayerColor from './utils/generatePlayerColor.util';
 
 export function Player(socket: Socket, namespace: Namespace) {
   const playerId = (socket.handshake.query?.playerId as string) ?? socket.id;
@@ -74,11 +75,14 @@ export function Player(socket: Socket, namespace: Namespace) {
   }
 
   const _onStart = () => {
-    socket.nsp.emit('start');
+    const _opponentId = room!.getOpponentId(''+playerId);
+    const color = generatePlayerColor(playerId, room!.getOpponentId(''+playerId)!);
+    socket.emit('start', color[playerId]);
+    socket.to(inRoomId!).emit('start', color[_opponentId!]);
   }
 
   const _onMove = (move: Move) => {
-    socket.to(inRoomId!).emit('move', JSON.stringify(move));
+    socket.to(inRoomId!).emit('move', move);
   };
 
   const events: { [key: string]: (...args: any) => void } = {

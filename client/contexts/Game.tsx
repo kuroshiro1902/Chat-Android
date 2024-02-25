@@ -1,10 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Socket, io } from "socket.io-client";
 import { UserContext } from "./User";
 import { server } from "../environments";
 import { IRoom } from "../models/room.model";
 import { IUser } from "../models/user.model";
 import axios from "axios";
+import { Move } from "chess.js";
+import { ChessboardRef } from "react-native-chessboard";
 
 export interface GameData {
   client: Socket | null,
@@ -12,11 +14,15 @@ export interface GameData {
   readyPlayers: {self: boolean, opponent: boolean},
   isStarted: boolean,
   hostId: string,
+  playerColor: 'b' | 'w',
+  isTurn: boolean,
+  currentMove: Move | null,
   joinRoom: (roomId?: string) => void,
   leaveRoom: () => void,
   ready: () => void,
   unready: () => void,
-  start: () => void
+  start: () => void,
+  move: (move: Move) => void,
 }
 export const GameContext = createContext<GameData>({} as GameData)
 function GameProvider({children, navigation}: any) {
@@ -26,12 +32,15 @@ function GameProvider({children, navigation}: any) {
   const [hostId, setHostId] = useState('');
   const [readyPlayers, setReadyPlayers] = useState<{self: boolean, opponent: boolean}>({self: false, opponent: false});
   const [isStarted, setIsStarted] = useState(false);
+  const [playerColor, setPlayerColor] = useState<'w' | 'b'>('w');
+  const [isTurn, setIsTurn] = useState(false);
+  const [currentMove, setCurrentMove] = useState<Move | null>(null);
 
-  const joinRoom = (roomId?: string) => {
+  const joinRoom = useCallback((roomId?: string) => {
     client?.emit('join-room', roomId);
-  }
+  }, [client]);
 
-  const leaveRoom = () => {
+  const leaveRoom = useCallback(() => {
     navigation.navigate('Home');
     //reset lại hết data khi rời room
     setOpponent(null);
@@ -39,19 +48,23 @@ function GameProvider({children, navigation}: any) {
     setReadyPlayers({self: false, opponent: false});
     setIsStarted(false);
     client?.emit('leave-room');
-  }
+  }, []);
 
-  const ready = () => {
+  const ready = useCallback(() => {
     client?.emit('ready');
-  }
+  }, [client]);
 
-  const unready = () => {
+  const unready = useCallback(() => {
     client?.emit('unready');
-  }
+  }, [client]);
   
-  const start = () => {
+  const start = useCallback(() => {
     client?.emit('start');
-  }
+  }, [client]);
+
+  const move = useCallback((move: Move) => {
+    client?.emit('move', move);
+  }, [client]);
   const gameEvents = useMemo<{[key: string]: (...args: any[]) => void }>(() => ({
     'joined-room': async (data: IRoom & {opponent: IUser}) => {
       setOpponent(_=>data.opponent);
@@ -68,8 +81,16 @@ function GameProvider({children, navigation}: any) {
     'ready': (readyPlayers: {self: boolean, opponent: boolean}) => {
       setReadyPlayers(_=>(readyPlayers));
     },
-    'start': () => {
-      setIsStarted(true)
+    'start': (color: 'b' | 'w') => {
+      setIsStarted(_=>true);
+      setPlayerColor(_=>color);
+      if (color === 'w') {
+        setIsTurn(_=>true);
+      }
+    },
+    'move': async (move: Move) => {
+      setCurrentMove(_=>move);
+      setIsTurn(prev => !prev);
     }
   }), []);
 
@@ -102,7 +123,11 @@ function GameProvider({children, navigation}: any) {
     }
   },[user, token]);
   return ( 
-    <GameContext.Provider value={{client, opponent, hostId, readyPlayers, isStarted, joinRoom, leaveRoom, ready, unready, start}}>
+    <GameContext.Provider 
+      value={{
+        client, opponent, hostId, readyPlayers, isTurn, isStarted, playerColor, currentMove,
+        joinRoom, leaveRoom, ready, unready, start, move
+      }}>
       {children}
     </GameContext.Provider>
   );
