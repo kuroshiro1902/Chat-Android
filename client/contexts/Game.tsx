@@ -49,7 +49,9 @@ function GameProvider({children, navigation}: any) {
     client?.emit('unready');
   }
   
-  const start = () => {}
+  const start = () => {
+    client?.emit('start');
+  }
   const gameEvents = useMemo<{[key: string]: (...args: any[]) => void }>(() => ({
     'joined-room': async (data: IRoom & {opponent: IUser}) => {
       setOpponent(_=>data.opponent);
@@ -65,6 +67,9 @@ function GameProvider({children, navigation}: any) {
     },
     'ready': (readyPlayers: {self: boolean, opponent: boolean}) => {
       setReadyPlayers(_=>(readyPlayers));
+    },
+    'start': () => {
+      setIsStarted(true)
     }
   }), []);
 

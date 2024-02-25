@@ -73,6 +73,10 @@ export function Player(socket: Socket, namespace: Namespace) {
     socket.to(inRoomId!).emit('ready', {self: opponent, opponent: self});
   }
 
+  const _onStart = () => {
+    socket.nsp.emit('start');
+  }
+
   const _onMove = (move: Move) => {
     socket.to(inRoomId!).emit('move', JSON.stringify(move));
   };
@@ -82,6 +86,7 @@ export function Player(socket: Socket, namespace: Namespace) {
     'leave-room': _onLeaveRoom,
     'ready': _onReady,
     'unready': _onUnready,
+    'start': _onStart,
     disconnect: _onDisconnect,
     move: _onMove,
     chat: _onChat,
