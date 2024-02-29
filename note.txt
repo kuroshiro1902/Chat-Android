@@ -9,4 +9,4 @@
 build: npx eas build -p android --profile preview
 
 
--- hot fix opponent
+-- hot fix end game

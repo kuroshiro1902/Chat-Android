@@ -7,5 +7,6 @@ const userRouter = Router();
 // /users
 // userRouter.use(authMiddleware);
 userRouter.get('', (req, res) => userController.findOneById(req, res));
+userRouter.patch('/:id', (req, res) => userController.updateElo(req, res));
 
 export default userRouter;

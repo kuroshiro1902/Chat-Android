@@ -1,12 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Socket, io } from "socket.io-client";
 import { UserContext } from "./User";
 import { server } from "../environments";
 import { IRoom } from "../models/room.model";
 import { IUser } from "../models/user.model";
-import axios from "axios";
 import { Move } from "chess.js";
-import { ChessboardRef } from "react-native-chessboard";
+import axios from "axios";
 
 export interface GameData {
   client: Socket | null,
@@ -17,16 +17,19 @@ export interface GameData {
   playerColor: 'b' | 'w',
   isTurn: boolean,
   currentMove: Move | null,
+  history: Move[],
+  endStatus: 'win' | 'loss' | 'draw' | null,
   joinRoom: (roomId?: string) => void,
   leaveRoom: () => void,
   ready: () => void,
   unready: () => void,
   start: () => void,
+  end: (status: 'win' | 'draw') => void,
   move: (move: Move) => void,
 }
 export const GameContext = createContext<GameData>({} as GameData)
 function GameProvider({children, navigation}: any) {
-  const {user, token} = useContext(UserContext)
+  const {user, setUser, token} = useContext(UserContext);
   const [client, setClient] = useState<Socket | null>(null);
   const [opponent, setOpponent] = useState<IUser | null>(null);
   const [hostId, setHostId] = useState('');
@@ -35,6 +38,14 @@ function GameProvider({children, navigation}: any) {
   const [playerColor, setPlayerColor] = useState<'w' | 'b'>('w');
   const [isTurn, setIsTurn] = useState(false);
   const [currentMove, setCurrentMove] = useState<Move | null>(null);
+  const [history, setHistory] = useState<Move[]>([]);
+  const [endStatus, setEndStatus] = useState<'win' | 'draw' | 'loss' | null>(null);
+
+  const updateUserWhenEndGame = useCallback(async (matchStatus: 'win' | 'draw' | 'loss') => {
+    const { data } = await axios.patch<{data: IUser}>(server.url + `/users/${user?.id}`, {matchStatus});
+    AsyncStorage.setItem('user', JSON.stringify(data.data));
+    setUser(data.data);
+  }, [user]);
 
   const joinRoom = useCallback((roomId?: string) => {
     client?.emit('join-room', roomId);
@@ -62,35 +73,53 @@ function GameProvider({children, navigation}: any) {
     client?.emit('start');
   }, [client]);
 
+  const end = useCallback((status: 'win' | 'draw') => {
+    client?.emit('end', status);
+  }, [client]);
+
   const move = useCallback((move: Move) => {
     client?.emit('move', move);
   }, [client]);
+
+  const reset = useCallback(() => {
+    client?.emit('reset');
+  }, [client]);
+
   const gameEvents = useMemo<{[key: string]: (...args: any[]) => void }>(() => ({
     'joined-room': async (data: IRoom & {opponent: IUser}) => {
       setOpponent(_=>data.opponent);
       navigation.navigate('Room', {roomId: data.id});
     },
     'opponent-joined-room': async (data: IRoom & {opponent: IUser}) => {
-      setOpponent(_=>data.opponent);
+      setOpponent(data.opponent);
       setHostId(data.hostId);
     },
     'opponent-left-room': () => {
-      setOpponent(_=>null);
+      setOpponent(null);
       setHostId('');
     },
     'ready': (readyPlayers: {self: boolean, opponent: boolean}) => {
-      setReadyPlayers(_=>(readyPlayers));
+      setReadyPlayers(readyPlayers);
     },
     'start': (color: 'b' | 'w') => {
-      setIsStarted(_=>true);
-      setPlayerColor(_=>color);
+      setIsStarted(true);
+      setEndStatus(null);
+      setHistory([]);
+      setPlayerColor(color);
       if (color === 'w') {
-        setIsTurn(_=>true);
+        setIsTurn(true);
       }
+    },
+    'end': async (status: 'win' | 'draw' | 'loss') => {
+      setEndStatus(status)
     },
     'move': async (move: Move) => {
       setCurrentMove(_=>move);
+      setHistory(prev=>[...prev, move])
       setIsTurn(prev => !prev);
+    },
+    'reset': async () => {
+
     }
   }), []);
 
@@ -112,21 +141,30 @@ function GameProvider({children, navigation}: any) {
   }, []);
   useEffect(()=>{
     let _client: Socket;
-    if(user && token) setClient(() => {
+    if(user && token && !client) setClient(() => {
       _client = io(server.url+`/game?playerId=${user.id ?? ''}`, {autoConnect: false, auth: {token}});
       _client?.connect();
       addEventListeners(_client);
+      _client.on('end', async (status: 'win' | 'draw' | 'loss') => {
+        const additionOpponentElo = status === 'loss' ? 20 : (status === 'win'? -20 : 0);
+        updateUserWhenEndGame(status);
+        setEndStatus(status);
+        setOpponent(prev=>{
+          if(prev) return {...prev, elo: prev.elo + additionOpponentElo};
+          return prev;
+        })
+      })
       return _client;
     });
-    return () => {
-      _client?.close();
-    }
+    // return () => {
+    //   _client?.close();
+    // }
   },[user, token]);
   return ( 
     <GameContext.Provider 
       value={{
-        client, opponent, hostId, readyPlayers, isTurn, isStarted, playerColor, currentMove,
-        joinRoom, leaveRoom, ready, unready, start, move
+        client, opponent, hostId, readyPlayers, isTurn, isStarted, playerColor, currentMove, history, endStatus,
+        joinRoom, leaveRoom, ready, unready, start, end, move
       }}>
       {children}
     </GameContext.Provider>

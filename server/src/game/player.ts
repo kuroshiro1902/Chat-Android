@@ -81,6 +81,12 @@ export function Player(socket: Socket, namespace: Namespace) {
     socket.to(inRoomId!).emit('start', color[_opponentId!]);
   }
 
+  const _onEnd = (status: 'win' | 'draw') => {
+    const opponentStatus = status === 'win' ? 'loss' : 'draw';
+    socket.emit('end', status);
+    socket.to(inRoomId!).emit('end', opponentStatus);
+  }
+
   const _onMove = (move: Move) => {
     socket.to(inRoomId!).emit('move', move);
   };
@@ -91,6 +97,7 @@ export function Player(socket: Socket, namespace: Namespace) {
     'ready': _onReady,
     'unready': _onUnready,
     'start': _onStart,
+    'end': _onEnd,
     disconnect: _onDisconnect,
     move: _onMove,
     chat: _onChat,

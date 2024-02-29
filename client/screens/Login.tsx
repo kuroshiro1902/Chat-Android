@@ -7,7 +7,6 @@ import { server } from "../environments";
 import { UserContext } from "../contexts/User";
 import { IUser } from "../models/user.model";
 import Loading from "../components/Loading";
-import { useNavigation } from "@react-navigation/native";
 
 const path = (mode: 'login' | 'signup') =>`/auth/${mode}`;
 function Login({navigation}: any) {

@@ -59,5 +59,21 @@ export const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     paddingHorizontal: 4
+  },
+  endGame: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: '#00000080',
+    zIndex: 10,
+    paddingHorizontal: 8,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  endStatusText: {
+    fontSize: 24,
+    textAlign: 'center',
+    fontWeight: '500',
+    marginBottom: 8
   }
 });

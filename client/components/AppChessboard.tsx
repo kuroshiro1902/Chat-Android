@@ -16,7 +16,8 @@ interface props {
     canStart: boolean;
     handleStart: () => void;
   },
-  handleMove: (move: Move) => void
+  handleMove: (move: Move) => void,
+  handleEnd: (status: 'win' | 'draw') => void
 }
 
 const PLAYER_PROPS = {
@@ -29,17 +30,36 @@ const PLAYER_PROPS = {
     b: 'RNBKQBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbkqbnr w KQkq - 0 1'
   }
 }
-function AppChessboard({isStarted, isReady, playerColor, isTurn, handleReady, handleStartCb, handleMove, move}: props) {
+function AppChessboard({isStarted, isReady, playerColor, isTurn, handleReady, handleStartCb, handleMove, handleEnd, move}: props) {
   const chessboardRef = useRef<ChessboardRef>(null);
   const {canStart, handleStart} = handleStartCb();
   useEffect(() => {
     // chessboardRef.current?.resetBoard(PLAYER_PROPS.fen[playerColor]);
   }, [playerColor, isStarted]);
 
+  
   useEffect(() => {
-    if(move){
-      chessboardRef.current?.move(move);
+    const handleAfterMove = async () => {
+      if (!move) return;
+      await chessboardRef.current?.move(move);
+  
+      const state = chessboardRef.current?.getState();
+      if (!state) return;
+
+      if (move.color !== playerColor) return;
+  
+      const {in_checkmate, in_draw, insufficient_material, in_threefold_repetition, in_stalemate} = state;
+  
+      if(in_checkmate) {
+        handleEnd('win');
+        return;
+      }
+      if(in_draw || insufficient_material || in_threefold_repetition || in_stalemate){
+        handleEnd('draw');
+        return;
+      }
     }
+    handleAfterMove();
   }, [move])
   
   return ( 

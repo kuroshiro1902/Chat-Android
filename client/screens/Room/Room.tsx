@@ -19,7 +19,7 @@ interface IBottomMenuOpt {
 
 function TextMove({children, isBlack}: {children: string, isBlack?: boolean}){
   return (
-    <Text style={{color: isBlack ? '#000' : '#fff', marginRight: 6, fontSize: 18}}>{children}</Text>
+    <Text style={{color: isBlack ? '#333' : '#ddd', marginRight: 6, fontSize: 18}}>{children}</Text>
   )
 }
 
@@ -32,8 +32,8 @@ function Room({navigation}: any) {
 
   const {user} = useContext(UserContext);
   const {
-    opponent, readyPlayers, isStarted, hostId, playerColor, isTurn, currentMove,
-    leaveRoom, ready, unready, start, move
+    opponent, readyPlayers, isStarted, hostId, playerColor, isTurn, currentMove, history, endStatus,
+    leaveRoom, ready, unready, start, end, move
   } = useContext(GameContext);
 
   const [iconName, setIconName] = useState('copy');
@@ -80,9 +80,15 @@ function Room({navigation}: any) {
     // console.clear();
   }, []);
 
+  const endStatusState = useMemo(() => {
+    if(endStatus === 'win') return {color: color.green, text: 'Bạn THẮNG!', sign: '+'};
+    if(endStatus === 'loss') return {color: color.red, text: 'Bạn THUA!', sign: '-'};
+    return {color: color.gray, text: 'HÒA', sign: ''};
+  }, [endStatus]);
+
   return (
     <>
-    {submitHandler && <View style={{...styles.submitCtn, }}>
+    {submitHandler && <View style={styles.submitCtn}>
       <View style={styles.submitForm}>
         <WhiteText style={{fontSize: 20, textAlign: 'center'}}>{submitHandler.message}</WhiteText>
         <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', marginTop: 16}}>
@@ -93,6 +99,14 @@ function Room({navigation}: any) {
             <Text style={{fontSize: 18, color: color.darkGreen, minWidth: 60, textAlign: 'center'}}>Hủy</Text>
           </Pressable>
         </View>
+      </View>
+    </View>}
+    {endStatus && <View id='end-status' style={styles.endGame}>
+      <View style={{width: '100%', marginHorizontal: 8, borderRadius: 4, paddingVertical: 16, paddingHorizontal: 8, backgroundColor: '#eee'}}>
+        {endStatus !== 'draw' && <Text style={{...styles.endStatusText, color: endStatusState.color}}>{endStatusState.text}</Text>}
+        <Text style={{textAlign: 'center', fontSize: 20}}>Elo: 
+          <Text style={{fontSize: 20, color: endStatusState.color}}> {user?.elo} ({endStatusState.sign}{20})</Text>
+        </Text>
       </View>
     </View>}
     <View style={styles.container}>
@@ -121,7 +135,7 @@ function Room({navigation}: any) {
           style={{marginVertical: 8, paddingHorizontal: 6, backgroundColor: color.green, height: 28}}
           onContentSizeChange={(e) => historyViewRef.current.scrollToEnd({animated: true})}
         >
-          {test}
+          {history.map((move, i) => <TextMove key={i} isBlack={move.color === 'b'}>{move.san}</TextMove>)}
         </ScrollView>
       </View>
       <View id='main' style={styles.main}>
@@ -131,6 +145,7 @@ function Room({navigation}: any) {
             isStarted={isStarted}
             isReady={isReady}
             handleReady={handleReady}
+            handleEnd={end}
             handleStartCb={handleStartCb}
             playerColor={playerColor}
             isTurn={isTurn}
@@ -143,12 +158,12 @@ function Room({navigation}: any) {
             </View>
           }
         </View>
-        <View id='progress' style={{padding: 4}}>
+        {/* <View id='progress' style={{padding: 4}}>
           <View style={{borderRadius: 4, overflow: 'hidden', backgroundColor: color.gray, width: '100%', height: 24}}>
             <View style={{backgroundColor: color.blue, height: '100%', width: `${((-evaluationValue + 2000) / 4000) * 100}%`}}></View>
           </View>
           <Text style={{textAlign: 'center', marginTop: 8}}>Lợi thế: 100</Text>
-        </View>
+        </View> */}
       </View>
       <View id='player-stats' style={{display: 'flex', flexDirection:'row', justifyContent: 'space-between', gap: 4}}>
           <PlayerStat player={user} ready={readyPlayers.self} />
