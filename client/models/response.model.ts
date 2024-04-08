@@ -1,4 +1,4 @@
-export interface Response<T> {
+export interface IResponse<T> {
   isSuccess?: boolean;
   message?: string;
   data?: T

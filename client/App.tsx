@@ -1,11 +1,6 @@
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { AppRegistry, StyleSheet } from 'react-native';
 import UserProvider from './contexts/User';
 import Sidebar from './screens/Sidebar';
-import GameProvider from './contexts/Game';
-import { registerRootComponent } from 'expo';
-import { Platform } from 'react-native';
 
 // const Stack = createNativeStackNavigator();
 
@@ -21,23 +16,7 @@ function Game() {
   const navigation = useNavigation();
   return (
     <UserProvider>
-      <GameProvider navigation={navigation}>
-        <Sidebar navigation={navigation} />
-        {/* <Stack.Navigator>
-          <Stack.Screen
-          name='Login'
-          component={Login}
-          options={{headerShown: false}}
-          >
-          </Stack.Screen>
-          <Stack.Screen
-          name='Home'
-          component={Home}
-          options={{ title: 'Chess - PTIT Android' }}
-          >
-          </Stack.Screen>
-        </Stack.Navigator> */}
-      </GameProvider>
+      <Sidebar navigation={navigation} />
     </UserProvider>
   );
 }

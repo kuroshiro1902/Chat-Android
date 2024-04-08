@@ -9,4 +9,4 @@
 build: npx eas build -p android --profile preview
 
 
--- hot fix end game
+- Làm chức năng reset sau khi ván đấu đã xong

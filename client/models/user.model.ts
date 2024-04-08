@@ -1,6 +1,5 @@
 export interface IUser {
-  id?: number;
+  id: number;
   name: string;
-  username: string;
-  elo: number;
+  username?: string;
 }

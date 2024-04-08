@@ -1,21 +1,17 @@
 import { createContext, useState } from "react";
 import { IUser } from "../models/user.model";
-import { IRoom } from "../models/room.model";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface UserData {
   user: IUser | null,
-  token: string | null,
-  setUser: React.Dispatch<React.SetStateAction<IUser | null>>,
-  setToken: React.Dispatch<React.SetStateAction<string | null>>
+  setUser: React.Dispatch<React.SetStateAction<IUser | null>>
 }
 export const UserContext = createContext<UserData>({} as UserData)
 function UserProvider({children}: any) {
   const [user, setUser] = useState<IUser | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [room, setRoom] = useState<IRoom | null>(null);
   
   return (
-    <UserContext.Provider value={{user, token, setUser, setToken}}>
+    <UserContext.Provider value={{user, setUser}}>
       {children}
     </UserContext.Provider>
   );

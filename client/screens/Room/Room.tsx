@@ -4,7 +4,6 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { color } from '../../theme';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import Clipboard from '@react-native-clipboard/clipboard';
-import AppChessboard from '../../components/AppChessboard';
 import WhiteText from '../../components/WhiteText';
 import { styles } from './styles';
 import BottomMenuBtn from './BottomMenuBtn';
@@ -140,17 +139,7 @@ function Room({navigation}: any) {
       </View>
       <View id='main' style={styles.main}>
         <View id='chessboard'>
-          <AppChessboard
-            move={currentMove}
-            isStarted={isStarted}
-            isReady={isReady}
-            handleReady={handleReady}
-            handleEnd={end}
-            handleStartCb={handleStartCb}
-            playerColor={playerColor}
-            isTurn={isTurn}
-            handleMove={move}
-          />
+          
           {isStarted && 
             <View style={{marginTop: 6}}>
               {isTurn && <Text style={{color: color.green, fontSize: 20, textAlign: 'center'}}>Lượt của bạn!</Text>}
