@@ -58,12 +58,16 @@ function Login({navigation, logout}: any) {
     api.post(path(mode), {username, password, name})
     .then(async (res: any)=>{
       setError(_=>'');
-      const { token, user } = res.data.data;
-      await handleSuccess(user, token);
+      if (mode === 'login'){
+        const { token, user } = res.data.data;
+        await handleSuccess(user, token);
+      }
+      else {
+        setMode(_=> 'login')
+      }
     })
     .catch((error) => {
       console.log(error);
-      
       setError(error.response?.data?.message ?? 'Error! Try again later.');
     })
     .finally(() => {  
