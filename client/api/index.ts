@@ -16,6 +16,9 @@ export const getUser = async () =>{
 }
 export const setUser = async (user: IUser) => await AsyncStorage.setItem(user_key, JSON.stringify(user));
 
+export const removeToken = async () => await AsyncStorage.removeItem(token_key);
+export const removeUser = async () => await AsyncStorage.removeItem(user_key);
+
 const headers = async () => ({
   Authorization: `Bearer ${await getToken()}`,
   Accept: '*/*',

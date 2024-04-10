@@ -10,7 +10,8 @@ import { IResponse } from "../models/response.model";
 import { IUser } from "../models/user.model";
 
 const path = (mode: 'login' | 'signup') =>`/auth/${mode}`;
-function Login({navigation}: any) {
+
+function Login({navigation, logout}: any) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -22,39 +23,47 @@ function Login({navigation}: any) {
   const toggleMode = () => setMode(prev => prev === 'login' ? 'signup' : 'login');
 
   useEffect(() => {
-    const getUser = async () => {
-      try {
-        const token = await getToken();        
-        if (!!token) {
-          const {data} = await api.post<IResponse<any>>('auth/verify-token');
-          if(data.isSuccess){
-            const { token, user } = data.data;
-            await handleSuccess(user, token);
-          }
-          else {
-            setError(_=>data.message??'Error!');
+    if (logout){
+      logout();
+      setIsLoading(false);
+    }
+    else {
+      const getUser = async () => {
+        try {
+          const token = await getToken();        
+          if (!!token) {
+            const {data} = await api.post<IResponse<any>>('auth/verify-token');
+            if(data.isSuccess){
+              const { token, user } = data.data;
+              await handleSuccess(user, token);
+            }
+            else {
+              setError(_=>data.message??'Error!');
+            }
           }
         }
-      }
-      catch (error) {
-      }
-      finally {
-        setIsLoading(_=>false);
-      }
-    };
-
-    getUser();
+        catch (error) {
+        }
+        finally {
+          setIsLoading(_=>false);
+        }
+      };
+  
+      getUser();
+    }
   }, []);
 
   const submit = () => {
     setIsLoading(_ => true);
-    api.post(server.url + path(mode), {username, password, name})
+    api.post(path(mode), {username, password, name})
     .then(async (res: any)=>{
       setError(_=>'');
       const { token, user } = res.data.data;
       await handleSuccess(user, token);
     })
     .catch((error) => {
+      console.log(error);
+      
       setError(error.response?.data?.message ?? 'Error! Try again later.');
     })
     .finally(() => {  
@@ -75,13 +84,14 @@ function Login({navigation}: any) {
     {isLoading && <Loading/>}
     <View style={styles.container}>
       <Image style={styles.logo} source={require('../assets/logo/logo.png')}></Image>
+      <Text style={{textAlign: 'center', color: '#007bc7', marginTop: -20, fontWeight: '500', marginBottom: 20}}>Connect to the world!</Text>
       <Text style={styles.title}>{mode === 'login' ? 'Đăng nhập' : 'Đăng kí'}</Text>
       {mode === 'signup' && 
       <TextInput
         style={theme.input}
         value={name}
         onChangeText={setName}
-        placeholder="Tên người chơi"
+        placeholder="Tên hiển thị"
       />
       }
       <TextInput
@@ -97,7 +107,13 @@ function Login({navigation}: any) {
         onChangeText={setPassword}
         onKeyPress={(e: any)=>{
           if (e.keyCode === 13) {
-            submit();
+            if(username.length < 6){
+              return setError('Tên đăng nhập quá ngắn.')
+            }
+            if(e.target.value?.length < 6) {
+              return setError('Mật khẩu quá ngắn');
+            }
+            return submit();
           }
         }}
         secureTextEntry={true}
@@ -144,7 +160,8 @@ const styles = StyleSheet.create({
     marginBottom: 16
   },
   logo: {
-    margin: 'auto'
+    margin: 'auto',
+    height: 200,
   },
   textBottom: {
     display: 'flex',
