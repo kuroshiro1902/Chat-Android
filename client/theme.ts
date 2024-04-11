@@ -8,6 +8,7 @@ export const color ={
   red: '#e76f51',
   blue: '#027291',
   gray: '#adb6b6',
+  lightGray: '#adb6b640',
   white: '#eeeeee'
 } ;
 
@@ -44,5 +45,11 @@ export const theme = StyleSheet.create({
     marginBottom: 6,
     borderWidth: 1,
     borderColor: color.blue
-  }
+  },
+  avatar: {
+    height: 44,
+    width: 44,
+    borderRadius: 44,
+    backgroundColor: color.lightGray
+  },
 });

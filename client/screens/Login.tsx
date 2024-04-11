@@ -1,17 +1,19 @@
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { color, theme } from "../theme";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { server } from "../environments";
 import Loading from "../components/Loading";
-import api, { getToken, setToken, setUser } from "../api";
+import api, { getToken, saveToken, saveUser } from "../api";
 import { IResponse } from "../models/response.model";
 import { IUser } from "../models/user.model";
+import { UserContext } from "../contexts/User";
 
 const path = (mode: 'login' | 'signup') =>`/auth/${mode}`;
 
 function Login({navigation, logout}: any) {
+  const { setUser } = useContext(UserContext);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -76,8 +78,9 @@ function Login({navigation, logout}: any) {
   }
 
   const handleSuccess = async (user: IUser, token: string) => {
-    await setToken(token);
-    await setUser(user);
+    await saveToken(token);
+    await saveUser(user);
+    setUser(_=>user);
     setTimeout(async ()=>{
       navigation.navigate('Home');
     }, 0)

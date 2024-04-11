@@ -6,7 +6,7 @@ import { IUser } from '../models/user.model';
 const token_key = 'android_app_token';
 const user_key = 'android_app_user';
 export const getToken = async () => await AsyncStorage.getItem(token_key);
-export const setToken = async (token: string) => await AsyncStorage.setItem(token_key, token);
+export const saveToken = async (token: string) => await AsyncStorage.setItem(token_key, token);
 export const getUser = async () =>{
   const _user = await AsyncStorage.getItem(user_key);
   if(_user){
@@ -14,7 +14,7 @@ export const getUser = async () =>{
   }
   return undefined;
 }
-export const setUser = async (user: IUser) => await AsyncStorage.setItem(user_key, JSON.stringify(user));
+export const saveUser = async (user: IUser) => await AsyncStorage.setItem(user_key, JSON.stringify(user));
 
 export const removeToken = async () => await AsyncStorage.removeItem(token_key);
 export const removeUser = async () => await AsyncStorage.removeItem(user_key);
