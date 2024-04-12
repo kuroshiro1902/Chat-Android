@@ -1,6 +1,7 @@
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import UserProvider from './contexts/User';
 import Sidebar from './screens/Sidebar';
+import SocketProvider from './contexts/Socket';
 
 // const Stack = createNativeStackNavigator();
 
@@ -16,7 +17,9 @@ function Game() {
   const navigation = useNavigation();
   return (
     <UserProvider>
-      <Sidebar navigation={navigation} />
+      <SocketProvider>
+        <Sidebar navigation={navigation} />
+      </SocketProvider>
     </UserProvider>
   );
 }

@@ -3,7 +3,6 @@ import { Button, FlatList, Pressable, StyleSheet, Text, TextInput, Touchable, To
 import { UserContext } from "../../contexts/User";
 import { color, theme } from "../../theme";
 import Loading from "../../components/Loading";
-import { GameContext } from "../../contexts/Game";
 import Overlay from "../../components/Overlay";
 import WhiteText from "../../components/WhiteText";
 import { IUser } from "../../models/user.model";
@@ -12,7 +11,7 @@ import { IRoomInput } from "../Room/models/room-input.model";
 
 function Home({ navigation }: any) {
   const [isLoading, setIsLoading] = useState(false);
-  const {user, setUser} = useContext(UserContext);
+  const {user, onlineFriendIds, setUser} = useContext(UserContext);
   const [friends, setFriends] = useState<IUser[]>([]);
 
   useEffect(() => {
@@ -40,25 +39,25 @@ function Home({ navigation }: any) {
     <View>
       <Text style={styles.title}>Xin chào, <Text style={styles.name}>{user?.name}</Text></Text>
       <FlatList
-      data={friends}
-      renderItem={({ item }) => {
-        const roomInput: IRoomInput = {receiverId: item.id, name: item.name};
-        return (
-        <TouchableOpacity onPress={() => {navigation.navigate('Room', roomInput)}}>
-          <View style={styles.block}>
-            <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
-              <View style={theme.avatar}></View>
-              <Text style={styles.friendName}>{item.name}</Text>
+        data={friends}
+        renderItem={({ item }) => {
+          const roomInput: IRoomInput = {receiverId: item.id, name: item.name};
+          return (
+          <TouchableOpacity onPress={() => {navigation.navigate('Room', roomInput)}}>
+            <View style={styles.block}>
+              <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+                <View style={theme.avatar}></View>
+                <Text style={styles.friendName}>{item.name}</Text>
+              </View>
+              <View style={{ display: 'flex', height: '100%', flexDirection: 'column', justifyContent: 'center' }}>
+                { onlineFriendIds[item.id] && <View style={{ width: 8, height: 8, borderRadius: 8, backgroundColor: color.green }}></View>}
+              </View>
             </View>
-            <View style={{ display: 'flex', height: '100%', flexDirection: 'column', justifyContent: 'center' }}>
-              <View style={{ width: 8, height: 8, borderRadius: 8, backgroundColor: color.green }}></View>
-            </View>
-          </View>
-        </TouchableOpacity>)
-      }}
-      keyExtractor={(_, i) => `${i}`}
-      style={styles.mainCtn}
-    />
+          </TouchableOpacity>)
+        }}
+        keyExtractor={(_, i) => `${i}`}
+        style={styles.mainCtn}
+      />
     </View>
     </>
   );
