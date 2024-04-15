@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Button, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { color, theme } from '../../theme';
 import FeatherIcon from 'react-native-vector-icons/AntDesign';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -11,27 +11,55 @@ import { IUser } from '../../models/user.model';
 import { IRoomInput } from './models/room-input.model';
 import { TouchableOpacity } from 'react-native';
 import { IMessage } from '../../models/message.model';
+import api from '../../api';
+import Loading from '../../components/Loading';
+import { SocketContext, DataHandler } from '../../contexts/Socket';
+import { IResponse } from '../../models/response.model';
 
-interface IBottomMenuOpt {
-  message: string;
-  handler: (...args: any[]) => void;
-}
-
-function TextMove({children, isBlack}: {children: string, isBlack?: boolean}){
-  return (
-    <Text style={{color: isBlack ? '#333' : '#ddd', marginRight: 6, fontSize: 18}}>{children}</Text>
-  )
-}
-
-const test: any[] = [];
-for(let i = 0; i < 20; i++){test.push(<TextMove key={i}>{'h'+i}</TextMove>)}
 
 function Room({navigation}: any) {
   const {user} = useContext(UserContext);
-  const {name} = useRoute().params as IRoomInput;
+  const {client} = useContext(SocketContext);
+  const params = useRoute().params as IRoomInput;
+  const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
+  const messageInputRef = useRef<any>();
+  
+  useEffect(() => {
+    DataHandler.receiveMessage = (res: IResponse<IMessage>) => {
+      if(res.data) {
+        setMessages(prev => [...prev, res.data!])
+      }
+    };
+
+    return ()=>{
+      delete DataHandler.receiveMessage;
+    }
+  }, []);
+  const {receiverId,name} = params;
+
+  const handleSendMessage = useCallback(()=>{
+    const content = messageInputRef.current.value.trim();
+    if(!!!content) return;
+    messageInputRef.current.value = '';  
+    client?.emit('message', {senderId: user?.id, receiverId, content} as IMessage)
+  }, [user, client, messageInputRef, params]);
+
+  useEffect(()=>{    
+    const getMessages = async () => {
+      setIsLoading(true);
+      const {data} = await api.post<{data: IMessage[]}>('/messages/get-messages', { receiverId });
+      setMessages(_ => data.data.reverse());
+    }
+    getMessages().finally(() => { setIsLoading(false); });
+
+    return () => {
+      setMessages([]);
+    }
+  }, [receiverId])
   
   return (
+    <> {isLoading && <Loading />}
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
@@ -47,25 +75,35 @@ function Room({navigation}: any) {
         <FlatList
           data={messages}
           renderItem={({ item }) => {
-            // const roomInput: IRoomInput = {receiverId: item.id, name: item.name};
+            const _styles = item.receiverId === receiverId
+              ? {message: styles.selfMessage, ctn: styles.selfMessageCtn, color: '#ffffff'}
+              : {message: styles.otherMessage, ctn: styles.otherMessageCtn, color: '#000000'};
             return (
-            <TouchableOpacity onPress={() => {}}>
-              {/* <View style={styles.block}>
-                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
-                  <View style={theme.avatar}></View>
-                </View>
-                <View style={{ display: 'flex', height: '100%', flexDirection: 'column', justifyContent: 'center' }}>
-                  <View style={{ width: 8, height: 8, borderRadius: 8, backgroundColor: color.green }}></View>
-                </View>
-              </View> */}
-              <View><Text>TEXTS</Text></View>
-            </TouchableOpacity>)
+              <View style={_styles.ctn}>
+                <Pressable
+                  style={_styles.message}
+                >
+                  <View>
+                    <Text style={{color: _styles.color}}>{item.content}</Text>
+                  </View>
+                </Pressable>
+              </View>
+            );
           }}
           keyExtractor={(_, i) => `${i}`}
           style={styles.messageListCtn}
         />
       </View>
+      <View id='message-form' style={styles.messageForm}>
+        <TextInput
+          style={styles.messageInput} maxLength={255} multiline placeholder='Gửi tin nhắn' ref={messageInputRef}
+        />
+        <TouchableOpacity style={styles.messageSubmitBtn} onPress={handleSendMessage}>
+          <Text style={{color: color.white, fontSize: 18, textAlign: 'center', flex: 1}}>Gửi</Text>
+        </TouchableOpacity>
+      </View>
     </View>
+    </>
   );
 }
 

@@ -1,7 +1,7 @@
 export interface IMessage {
-  id: number;
+  id?: number;
   content: string;
-  receiverId: string;
-  senderId: string;
+  receiverId: number;
+  senderId: number;
   sendTimestamp: number;
 }

@@ -3,8 +3,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
-  useRef,
   useState,
 } from 'react';
 import { Socket, io } from 'socket.io-client';
@@ -12,9 +10,16 @@ import { UserContext } from './User';
 import { chatServer, server } from '../environments';
 import { IUser } from '../models/user.model';
 import { getToken } from '../api';
+import { IMessage } from '../models/message.model';
 
-export interface SocketData {}
-export const SocketContext = createContext<SocketData>({});
+export const DataHandler: {[key: string]: (...data: any) => any} = {
+  receiveMessage: (message: IMessage) => {}
+};
+
+export interface SocketData {
+  client: Socket | null
+}
+export const SocketContext = createContext<SocketData>({} as SocketData);
 function SocketProvider({ children, navigation }: any) {
   const { user, setUser, setOnlineFriendIds } = useContext(UserContext);
   const [client, setClient] = useState<Socket | null>(null);
@@ -47,6 +52,9 @@ function SocketProvider({ children, navigation }: any) {
       'friend-offline': (data: IUser) => {
         setOnlineFriendIds( prev=> ({...prev, [data.id]: false}) )
       },
+      'message': (data: IMessage) => {
+        DataHandler.receiveMessage?.(data);
+      }
     };
 
     Object.keys(chatEvents).forEach((key) => {
@@ -76,7 +84,7 @@ function SocketProvider({ children, navigation }: any) {
     }
     initSocketClient();
   }, [user]);
-  return <SocketContext.Provider value={{}}>{children}</SocketContext.Provider>;
+  return <SocketContext.Provider value={{client}}>{children}</SocketContext.Provider>;
 }
 
 export default SocketProvider;

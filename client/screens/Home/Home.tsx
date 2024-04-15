@@ -38,6 +38,7 @@ function Home({ navigation }: any) {
     {isLoading && <Loading />}
     <View>
       <Text style={styles.title}>Xin chào, <Text style={styles.name}>{user?.name}</Text></Text>
+      <Text style={{paddingLeft: 4, marginBottom: -8}}>Bạn bè đang online</Text>
       <FlatList
         data={friends}
         renderItem={({ item }) => {

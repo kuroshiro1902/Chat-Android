@@ -1,7 +1,7 @@
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import Login from "./Login";
 import Home from "./Home/Home";
-import { useContext, useEffect, useState } from "react";
+import { memo, useContext, useEffect, useState } from "react";
 import { UserContext } from "../contexts/User";
 import { Button } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -40,4 +40,4 @@ function Sidebar({navigation}: any) {
    );
 }
 
-export default Sidebar;
+export default memo(Sidebar);
