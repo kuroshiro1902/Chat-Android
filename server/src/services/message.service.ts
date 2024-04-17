@@ -8,20 +8,33 @@ export const messageDbPath = '/messages';
 class MessageService {
   async getMessages(senderId: number, receiverId: number, options?: IPagination): Promise<IMessage[]> {
     try {
+      let start: number = 0,
+        end: number = 20;
+
+      if (options?.pageIndex && options?.perPage) {
+        start = (options.pageIndex - 1) * options?.perPage;
+        end = options.pageIndex * options.perPage;
+      }
+      console.log(start, end);
       const { data: messages } = await apiService.get<IMessage[]>(messageDbPath, {
-        senderId,
-        receiverId,
-        _per_page: options?.perPage ?? 20,
-        _page: (() => {
-          const pageIndex = options?.pageIndex;
-          if (pageIndex && pageIndex >= 0) {
-            return pageIndex;
-          }
-          return 1;
-        })(),
+        senderId: [senderId, receiverId],
+        receiverId: [receiverId, senderId],
+        isDeleted: false,
+        // _per_page: options?.perPage ?? 20,
+        _start: start,
+        _end: end,
+        // _page: (() => {
+        //   const pageIndex = options?.pageIndex;
+        //   if (pageIndex && pageIndex >= 0) {
+        //     return pageIndex;
+        //   }
+        //   return 1;
+        // })(),
         _sort: options?.sortBy ?? 'id',
         _order: options?.order ?? 'desc',
       });
+      console.log(messages?.length);
+
       if (messages && messages.length > 0) {
         return messages;
       } else return [];
@@ -67,6 +80,7 @@ class MessageService {
         receiverId,
         senderId,
         sendTimestamp: new Date().getTime(),
+        isDeleted: false,
       };
       const createdMessage = await this.saveMessage(message);
 
@@ -87,7 +101,14 @@ class MessageService {
       return null;
     }
   }
-
+  async deleteMessages(messageId: number): Promise<void> {
+    try {
+      await apiService.update(`${messageDbPath}/${messageId}`, { isDeleted: true });
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      throw new Error('Failed to delete message.');
+    }
+  }
   async saveMessage(message: IMessage) {
     try {
       const { content, receiverId, senderId } = message;
@@ -96,6 +117,7 @@ class MessageService {
         receiverId,
         senderId,
         sendTimestamp: new Date().getTime(),
+        isDeleted: false,
       });
       return data;
     } catch (error) {

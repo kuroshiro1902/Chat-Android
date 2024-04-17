@@ -1,63 +1,73 @@
-import { StyleSheet } from "react-native";
-import { color, theme } from "../../theme";
+import { StyleSheet } from 'react-native';
+import { color, theme } from '../../theme';
 
 export const styles = StyleSheet.create({
   container: {
-    display: "flex",
-    flexDirection: "column",
-    height: '100%'
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
   },
   header: {
-    display: "flex",
+    display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'space-between',
     gap: 8,
     height: 60,
     backgroundColor: color.blue,
-    padding: 8
+    padding: 8,
+  },
+  headerMain: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    height: '100%',
+    padding: 8,
   },
   roomName: {
     fontSize: 20,
     fontWeight: '500',
-    color: '#ffffff'
+    color: '#ffffff',
   },
   messageListCtn: {
     height: '100%',
-    paddingHorizontal: 4
+    paddingHorizontal: 4,
   },
   selfMessageCtn: {
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 2,
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
   },
   otherMessageCtn: {
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 2,
     display: 'flex',
     flexDirection: 'row',
   },
   selfMessage: {
     backgroundColor: color.blue,
     color: '#FFFFFF',
-    padding: 4,
-    borderRadius: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    borderRadius: 6,
     maxWidth: '95%',
-    fontSize: 18
+    fontSize: 20,
   },
   otherMessage: {
-    backgroundColor: '#ffffff',
-    padding: 4,
-    borderRadius: 4,
+    backgroundColor: '#00000015',
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    borderRadius: 6,
     maxWidth: '95%',
-    fontSize: 18
+    fontSize: 20,
   },
   messageForm: {
     display: 'flex',
     flexDirection: 'row',
-    gap: 4, 
-    padding: 4
+    gap: 4,
+    padding: 4,
   },
   messageInput: {
     flex: 1,
@@ -66,15 +76,15 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     fontSize: 18,
     outlineStyle: 'none',
-    borderColor: color.gray
+    borderColor: color.gray,
   },
   messageSubmitBtn: {
     width: 52,
     paddingHorizontal: 4,
-    backgroundColor: color.blue,
+    backgroundColor: color.darkGreen,
     borderRadius: 4,
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
 });

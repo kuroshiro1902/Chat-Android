@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { Socket, io } from 'socket.io-client';
 import { UserContext } from './User';
 import { chatServer, server } from '../environments';
@@ -12,12 +6,12 @@ import { IUser } from '../models/user.model';
 import { getToken } from '../api';
 import { IMessage } from '../models/message.model';
 
-export const DataHandler: {[key: string]: (...data: any) => any} = {
-  receiveMessage: (message: IMessage) => {}
+export const SocketHandler: { [key: string]: (...data: any) => any } = {
+  receiveMessage: (message: IMessage) => {},
 };
 
 export interface SocketData {
-  client: Socket | null
+  client: Socket | null;
 }
 export const SocketContext = createContext<SocketData>({} as SocketData);
 function SocketProvider({ children, navigation }: any) {
@@ -35,26 +29,25 @@ function SocketProvider({ children, navigation }: any) {
       console.log('Connect error!');
       console.log(err);
     });
-    client.on('unauthorized', ()=>{
+    client.on('unauthorized', () => {
       console.log('Token không hợp lệ.'); // TEST
-      
     });
 
     const chatEvents: { [key: string]: (...args: any[]) => void } = {
       'get-online-friends': (data: IUser[]) => {
         console.log('online friends:', data);
-        
-        setOnlineFriendIds(data.reduce((prev, user)=> ({...prev, [user.id]: true}), {}));
+
+        setOnlineFriendIds(data.reduce((prev, user) => ({ ...prev, [user.id]: true }), {}));
       },
       'friend-online': (data: IUser) => {
-        setOnlineFriendIds( prev=> ({...prev, [data.id]: true}) )
+        setOnlineFriendIds((prev) => ({ ...prev, [data.id]: true }));
       },
       'friend-offline': (data: IUser) => {
-        setOnlineFriendIds( prev=> ({...prev, [data.id]: false}) )
+        setOnlineFriendIds((prev) => ({ ...prev, [data.id]: false }));
       },
-      'message': (data: IMessage) => {
-        DataHandler.receiveMessage?.(data);
-      }
+      message: (data: IMessage) => {
+        SocketHandler.receiveMessage?.(data);
+      },
     };
 
     Object.keys(chatEvents).forEach((key) => {
@@ -64,10 +57,16 @@ function SocketProvider({ children, navigation }: any) {
 
   useEffect(() => {
     const initSocketClient = async () => {
-      if(!user){ setClient(null); setOnlineFriendIds({}); return};
-      if (client) {client.disconnect();}
+      if (!user) {
+        setClient(null);
+        setOnlineFriendIds({});
+        return;
+      }
+      if (client) {
+        client.disconnect();
+      }
       const token = await getToken();
-      if (user && token && !client){
+      if (user && token && !client) {
         let _client: Socket;
         setClient(() => {
           _client = io(chatServer.url, {
@@ -80,11 +79,11 @@ function SocketProvider({ children, navigation }: any) {
           initEventListeners(_client);
           return _client;
         });
-      };
-    }
+      }
+    };
     initSocketClient();
   }, [user]);
-  return <SocketContext.Provider value={{client}}>{children}</SocketContext.Provider>;
+  return <SocketContext.Provider value={{ client }}>{children}</SocketContext.Provider>;
 }
 
 export default SocketProvider;

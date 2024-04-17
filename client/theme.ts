@@ -1,6 +1,6 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 
-export const color ={
+export const color = {
   darkGreen: '#264653',
   green: '#2a9d8f',
   yellow: '#e9c46a',
@@ -9,8 +9,9 @@ export const color ={
   blue: '#027291',
   gray: '#adb6b6',
   lightGray: '#adb6b640',
-  white: '#eeeeee'
-} ;
+  white: '#eeeeee',
+  darkGray: '#00000090',
+};
 
 export const theme = StyleSheet.create({
   container: {
@@ -27,7 +28,7 @@ export const theme = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: color.blue,
     alignSelf: 'flex-start',
-    margin: 'auto'
+    margin: 'auto',
   },
   buttonPressed: {
     color: color.white,
@@ -36,7 +37,7 @@ export const theme = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: color.orange,
     alignSelf: 'flex-start',
-    margin: 'auto'
+    margin: 'auto',
   },
   input: {
     paddingVertical: 8,
@@ -44,12 +45,15 @@ export const theme = StyleSheet.create({
     borderRadius: 4,
     marginBottom: 6,
     borderWidth: 1,
-    borderColor: color.blue
+    borderColor: color.blue,
   },
   avatar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     height: 44,
     width: 44,
     borderRadius: 44,
-    backgroundColor: color.lightGray
+    backgroundColor: color.lightGray,
   },
 });

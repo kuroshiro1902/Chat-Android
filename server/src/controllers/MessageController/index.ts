@@ -11,13 +11,11 @@ class MessageController {
       const { id: senderId } = req.user;
       // @ts-ignore
       const { options, receiverId } = req.body;
+      console.log({ ob: req.body });
       if (!receiverId) {
         return res.status(EStatusCode.INVALID_INPUT).json({ isSuccess: false, message: 'Không có id người nhận!' });
       }
-      const sendMessagesReq = messageService.getMessages(senderId, receiverId, options);
-      const receiveMessagesReq = messageService.getMessages(receiverId, senderId, options);
-      const messagesRes = await Promise.all([receiveMessagesReq, sendMessagesReq]);
-      const messages = [...messagesRes[0], ...messagesRes[1]].sort((a, b) => b.sendTimestamp - a.sendTimestamp);
+      const messages = await messageService.getMessages(senderId, receiverId, options);
       return res.status(EStatusCode.SUCCESS).json({ isSuccess: true, data: messages });
     } catch (error) {
       console.error(error);
@@ -36,6 +34,24 @@ class MessageController {
       }
       const { status, isSuccess, data, message } = response;
       return res.status(status).json({ isSuccess, data, message });
+    } catch (error) {
+      console.error(error);
+      serverError(res);
+    }
+  }
+  async deleteMessages(req: ApiRequest, res: ApiResponse) {
+    try {
+      // @ts-ignore
+      const { id: senderId } = req.user;
+      // @ts-ignore
+      const messageId: number = parseInt(req.params.messageId as string);
+      if (!messageId) {
+        return res
+          .status(EStatusCode.INVALID_INPUT)
+          .json({ isSuccess: false, message: 'Không có id tin nhắn cần xóa!' });
+      }
+      await messageService.deleteMessages(messageId);
+      return res.status(EStatusCode.SUCCESS).json({ isSuccess: true, message: 'Xóa thành công tin nhắn' });
     } catch (error) {
       console.error(error);
       serverError(res);

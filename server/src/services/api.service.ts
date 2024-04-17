@@ -24,6 +24,10 @@ const apiService = {
     const _path = path[0] === '/' ? path.substring(1) : path;
     return await axios.delete<T>(env.DB_URL + '/' + _path + (params ? '?' + _paramSerializer(params) : ''));
   },
+  update: async <T>(path: string, data: T) => {
+    const _path = path[0] === '/' ? path.substring(1) : path;
+    return await axios.patch<T>(env.DB_URL + '/' + _path, data);
+  },
 };
 
 function _paramSerializer(paramObject?: { [key: string]: any }) {

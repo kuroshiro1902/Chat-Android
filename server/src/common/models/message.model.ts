@@ -4,6 +4,7 @@ export interface IMessage {
   receiverId: number;
   senderId: number;
   sendTimestamp: number;
+  isDeleted: boolean;
 }
 
 export interface IMessageInput {
