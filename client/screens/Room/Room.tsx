@@ -1,6 +1,18 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
-import { Button, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Alert,
+  Button,
+  FlatList,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableHighlight,
+  View,
+} from 'react-native';
 import { color, theme } from '../../theme';
 import FeatherIcon from 'react-native-vector-icons/AntDesign';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
@@ -16,6 +28,8 @@ import api from '../../api';
 import Loading from '../../components/Loading';
 import { SocketContext, SocketHandler } from '../../contexts/Socket';
 import { IResponse } from '../../models/response.model';
+import SelectedMessageForm from './SelectedMessageForm';
+import Overlay from '../../components/Overlay';
 
 function Room({ navigation }: any) {
   const { user } = useContext(UserContext);
@@ -23,7 +37,8 @@ function Room({ navigation }: any) {
   const params = useRoute().params as IRoomInput;
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const messageInputRef = useRef<any>();
+  const [messageInputValue, setMessageInputValue] = useState('');
+  const [selectedMessage, setSelectedMessage] = useState<IMessage | null>(null);
   const messageListCtnRef = useRef<any>();
 
   useEffect(() => {
@@ -35,20 +50,33 @@ function Room({ navigation }: any) {
         }, 200);
       }
     };
+
+    SocketHandler.deleteMessage = (messageId: number) => {
+      console.log('delete message id:', messageId);
+      if (messageId) {
+        setMessages((prev) => prev.filter((m) => m.id !== messageId));
+      }
+    };
     return () => {
       delete SocketHandler.receiveMessage;
+      delete SocketHandler.deleteMessage;
     };
   }, []);
 
   const { receiverId, name } = params;
 
   const handleSendMessage = useCallback(() => {
-    const content = messageInputRef.current.value.trim();
-    if (!!!content) return;
-    messageInputRef.current.value = '';
+    setMessageInputValue((prev) => {
+      const content = prev?.trim();
+      if (!!!content) return prev;
+      client?.emit('message', { senderId: user?.id, receiverId, content } as IMessage);
+      return '';
+    });
+  }, []);
 
-    client?.emit('message', { senderId: user?.id, receiverId, content } as IMessage);
-  }, [user, client, messageInputRef, params]);
+  const handleDeleteMessage = useCallback(async (message: IMessage) => {
+    client?.emit('delete-message', message);
+  }, []);
 
   useEffect(() => {
     const getMessages = async () => {
@@ -59,7 +87,7 @@ function Room({ navigation }: any) {
     getMessages().finally(() => {
       setIsLoading(false);
       setTimeout(() => {
-        messageListCtnRef.current.scrollToEnd({ animated: true });
+        messageListCtnRef.current?.scrollToEnd({ animated: true });
       }, 200);
     });
 
@@ -70,8 +98,16 @@ function Room({ navigation }: any) {
 
   return (
     <>
-      {' '}
-      {isLoading && <Loading />}
+      {isLoading ? <Loading /> : undefined}
+      {selectedMessage ? (
+        <Overlay isShowCloseBtn={false} handleClose={() => setSelectedMessage(null)}>
+          <SelectedMessageForm
+            message={selectedMessage}
+            isSelfMessage={selectedMessage.senderId === user?.id}
+            handleDeleteMessage={handleDeleteMessage}
+          />
+        </Overlay>
+      ) : undefined}
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerMain}>
@@ -87,7 +123,9 @@ function Room({ navigation }: any) {
                 navigation.navigate('Home');
               }}
             >
-              <FeatherIcon name="arrowleft" size={20} color={'#ffffff'} />
+              <Text>
+                <FeatherIcon name="arrowleft" size={20} color={'#ffffff'} />
+              </Text>
             </TouchableOpacity>
             <View style={theme.avatar}>
               <Image style={{ width: '100%', height: '100%' }} source={require('../../assets/logo/user.png')}></Image>
@@ -95,7 +133,9 @@ function Room({ navigation }: any) {
             <Text style={styles.roomName}>{name}</Text>
           </View>
           <TouchableOpacity style={styles.headerMain}>
-            <SimpleLineIcons name="options-vertical" size={20} color={'#ffffff'} />
+            <Text>
+              <SimpleLineIcons name="options-vertical" size={20} color={'#ffffff'} />
+            </Text>
           </TouchableOpacity>
         </View>
         <View style={{ flex: 1 }}>
@@ -109,11 +149,16 @@ function Room({ navigation }: any) {
                   : { message: styles.otherMessage, ctn: styles.otherMessageCtn, color: '#000000' };
               return (
                 <View style={_styles.ctn}>
-                  <Pressable style={_styles.message}>
+                  <TouchableHighlight
+                    underlayColor={color.orange}
+                    style={_styles.message}
+                    onLongPress={() => setSelectedMessage(item)}
+                    delayLongPress={150}
+                  >
                     <View>
                       <Text style={{ color: _styles.color, fontSize: 20 }}>{item.content}</Text>
                     </View>
-                  </Pressable>
+                  </TouchableHighlight>
                 </View>
               );
             }}
@@ -127,7 +172,10 @@ function Room({ navigation }: any) {
             maxLength={255}
             multiline
             placeholder="Gửi tin nhắn"
-            ref={messageInputRef}
+            value={messageInputValue}
+            onChangeText={(text) => {
+              setMessageInputValue(text);
+            }}
           />
           <TouchableOpacity style={styles.messageSubmitBtn} onPress={handleSendMessage}>
             <Text style={{ color: color.white, fontSize: 18, textAlign: 'center', flex: 1 }}>Gửi</Text>

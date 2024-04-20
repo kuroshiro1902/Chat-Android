@@ -9,6 +9,6 @@ const messageRouter = Router();
 messageRouter.use(authMiddleware);
 messageRouter.post('/get-messages', (req, res) => messageController.getMessages(req, res));
 messageRouter.post('/send-message', (req, res) => messageController.sendMessage(req, res));
-messageRouter.delete('/delete-message/:messageId', (req, res) => messageController.deleteMessages(req, res));
+messageRouter.delete('/:messageId', (req, res) => messageController.deleteMessages(req, res));
 
 export default messageRouter;

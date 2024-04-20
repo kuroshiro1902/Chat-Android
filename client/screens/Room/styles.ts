@@ -49,16 +49,14 @@ export const styles = StyleSheet.create({
   selfMessage: {
     backgroundColor: color.blue,
     color: '#FFFFFF',
-    paddingVertical: 4,
-    paddingHorizontal: 6,
+    padding: 6,
     borderRadius: 6,
     maxWidth: '95%',
     fontSize: 20,
   },
   otherMessage: {
     backgroundColor: '#00000015',
-    paddingVertical: 4,
-    paddingHorizontal: 6,
+    padding: 6,
     borderRadius: 6,
     maxWidth: '95%',
     fontSize: 20,

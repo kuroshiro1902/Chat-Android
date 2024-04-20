@@ -2,18 +2,19 @@ import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import UserProvider from './contexts/User';
 import Sidebar from './screens/Sidebar';
 import SocketProvider from './contexts/Socket';
+import { AppRegistry, Platform, View } from 'react-native';
 
 // const Stack = createNativeStackNavigator();
 
-export default function App(){
+export default function App() {
   return (
     <NavigationContainer>
-      <Game />
+      <ChatApp />
     </NavigationContainer>
   );
 }
 
-function Game() {
+function ChatApp() {
   const navigation = useNavigation();
   return (
     <UserProvider>
@@ -33,7 +34,7 @@ function Game() {
 //   },
 // });
 
-// AppRegistry.registerComponent('android-client', () => App);
+// AppRegistry.registerComponent('main', () => App);
 
 // if (Platform.OS === 'web') {
 //   const rootTag = document.getElementById('root') || document.getElementById('X');

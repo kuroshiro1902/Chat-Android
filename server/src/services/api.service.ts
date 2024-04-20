@@ -7,14 +7,6 @@ const apiService = {
     return await axios.get<T>(env.DB_URL + '/' + _path + (params ? '?' + _paramSerializer(params) : ''));
   },
 
-  // post: async <T>(path: string, params?: { [key: string]: any }) => {
-  //   const _path = path[0] === '/' ? path.substring(1) : path;
-  //   return await axios.post<T>(
-  //     env.DB_URL + '/' + _path + (params ? '?' + _paramSerializer(params) : ''),
-  //
-  //   );
-  // },
-
   post: async <T>(path: string, body?: { [key: string]: any }) => {
     const _path = path[0] === '/' ? path.substring(1) : path;
     return await axios.post<T>(env.DB_URL + '/' + _path, body);
@@ -24,7 +16,7 @@ const apiService = {
     const _path = path[0] === '/' ? path.substring(1) : path;
     return await axios.delete<T>(env.DB_URL + '/' + _path + (params ? '?' + _paramSerializer(params) : ''));
   },
-  update: async <T>(path: string, data: T) => {
+  update: async <T>(path: string, data: Partial<T>) => {
     const _path = path[0] === '/' ? path.substring(1) : path;
     return await axios.patch<T>(env.DB_URL + '/' + _path, data);
   },

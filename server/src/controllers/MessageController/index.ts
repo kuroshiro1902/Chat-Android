@@ -39,19 +39,29 @@ class MessageController {
       serverError(res);
     }
   }
+
   async deleteMessages(req: ApiRequest, res: ApiResponse) {
     try {
       // @ts-ignore
       const { id: senderId } = req.user;
       // @ts-ignore
-      const messageId: number = parseInt(req.params.messageId as string);
+      const messageId = +(req.params.messageId as string);
       if (!messageId) {
         return res
           .status(EStatusCode.INVALID_INPUT)
           .json({ isSuccess: false, message: 'Không có id tin nhắn cần xóa!' });
       }
-      await messageService.deleteMessages(messageId);
-      return res.status(EStatusCode.SUCCESS).json({ isSuccess: true, message: 'Xóa thành công tin nhắn' });
+      const message = await messageService.getById(messageId);
+      if (!message) {
+        return res.status(EStatusCode.NOT_FOUND).json({ isSuccess: false, message: 'Tin nhắn không tồn tại.' });
+      }
+      if (message.senderId !== senderId) {
+        return res
+          .status(EStatusCode.UNAUTHORIZED)
+          .json({ isSuccess: false, message: 'Bạn không có quyền xóa tin nhắn này!' });
+      }
+      const r = await messageService.deleteMessage(messageId);
+      return res.status(r.status).json({ isSuccess: r.isSuccess, message: r.message });
     } catch (error) {
       console.error(error);
       serverError(res);

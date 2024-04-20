@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { UserContext } from '../../contexts/User';
 import { color, theme } from '../../theme';
 import Loading from '../../components/Loading';
@@ -16,7 +16,6 @@ function Home({ navigation }: any) {
     if (!user) {
       return navigation.navigate('Login');
     }
-    console.log('get friends');
     api
       .get<{ data?: IUser[] }>('/users/friends')
       .then(({ data }) => {
@@ -33,7 +32,8 @@ function Home({ navigation }: any) {
 
   return (
     <>
-      {isLoading && <Loading />}
+      <StatusBar hidden />
+      {isLoading ? <Loading /> : undefined}
       <View>
         <Text style={styles.title}>
           Xin chào, <Text style={styles.name}>{user?.name}</Text>
@@ -93,11 +93,11 @@ const styles = StyleSheet.create({
     width: '50%',
     paddingVertical: 16,
   },
-  text: {
-    color: 'inherit',
-    textAlign: 'center',
-    fontSize: 20,
-  },
+  // text: {
+  //   color: 'inherit',
+  //   textAlign: 'center',
+  //   fontSize: 20,
+  // },
 });
 
 export default Home;

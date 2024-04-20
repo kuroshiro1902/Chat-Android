@@ -9,7 +9,7 @@ export const color = {
   blue: '#027291',
   gray: '#adb6b6',
   lightGray: '#adb6b640',
-  white: '#eeeeee',
+  white: '#ffffff',
   darkGray: '#00000090',
 };
 

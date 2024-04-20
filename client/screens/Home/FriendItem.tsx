@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { IRoomInput } from '../Room/models/room-input.model';
 import { IMessage } from '../../models/message.model';
 import api from '../../api';
@@ -13,22 +13,25 @@ const FriendItem = ({ item }: { item: IUser }) => {
   const { user, onlineFriendIds, setUser } = useContext(UserContext);
   const roomInput: IRoomInput = { receiverId: item.id, name: item.name };
   const [message, setMessage] = useState<IMessage | undefined>();
-  useEffect(() => {
-    const getMessages = async () => {
-      // setIsLoading(true);
+
+  const getMessages = useCallback(
+    async (options?: any) => {
       const { data } = await api.post<{ data: IMessage[] }>('/messages/get-messages', {
         receiverId: item.id,
+        options,
       });
       setMessage((_) => data.data.reverse().pop() || undefined);
-    };
-    getMessages().finally(() => {
-      // setIsLoading(false);
-    });
+    },
+    [item],
+  );
 
+  useEffect(() => {
+    getMessages();
     return () => {
       setMessage(undefined);
     };
   }, [item.id]);
+
   return (
     <TouchableOpacity
       onPress={() => {
@@ -48,9 +51,9 @@ const FriendItem = ({ item }: { item: IUser }) => {
           </View>
         </View>
         <View style={{ display: 'flex', height: '100%', flexDirection: 'column', justifyContent: 'center' }}>
-          {onlineFriendIds[item.id] && (
+          {onlineFriendIds[item.id] ? (
             <View style={{ width: 8, height: 8, borderRadius: 8, backgroundColor: color.green }}></View>
-          )}
+          ) : undefined}
         </View>
       </View>
     </TouchableOpacity>
@@ -100,11 +103,11 @@ const styles = StyleSheet.create({
     width: '50%',
     paddingVertical: 16,
   },
-  text: {
-    color: 'inherit',
-    textAlign: 'center',
-    fontSize: 20,
-  },
+  // text: {
+  //   color: 'inherit',
+  //   textAlign: 'center',
+  //   fontSize: 20,
+  // },
 });
 
 export default FriendItem;

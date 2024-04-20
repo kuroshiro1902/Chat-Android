@@ -11,6 +11,8 @@ export enum ESocketEvents {
   GET_ONLINE_FRIENDS = 'get-online-friends',
   MESSAGE = 'message',
   SEND_MESSAGE_FAIL = 'send-message-fail',
+  DELETE_MESSAGE = 'delete-message',
+  HISTORY_CHANGE = 'history-change', // emit when someone send or delete message
   UNAUTHORIZED = 'unauthorized',
 }
 class SocketController {
@@ -27,8 +29,8 @@ class SocketController {
     // called 1 time when the user is online.
     const user: IUserDTO = socket.data.user;
     if (!user?.id) return;
+    console.log(user.name, 'is online!');
     const _socket = this.get(user.id);
-    console.log(user.name + ' online!'); // TEST
     if (_socket) {
       _socket.emit(ESocketEvents.ONLINE);
       userService.getFriendsById(user.id).then((friends) => {
@@ -42,6 +44,8 @@ class SocketController {
             }
           }
         });
+        console.log({ onlineFriends });
+
         _socket.emit(ESocketEvents.GET_ONLINE_FRIENDS, onlineFriends);
       });
     }
@@ -66,11 +70,29 @@ class SocketController {
           const receiverSocket = this.get(message.receiverId);
           senderSocket?.emit(ESocketEvents.MESSAGE, res);
           receiverSocket?.emit(ESocketEvents.MESSAGE, res);
+
+          senderSocket?.emit(ESocketEvents.HISTORY_CHANGE, message.receiverId);
+          receiverSocket?.emit(ESocketEvents.HISTORY_CHANGE, message.senderId);
         } else {
           senderSocket?.emit(ESocketEvents.SEND_MESSAGE_FAIL, res);
         }
       }
     });
+  }
+  deleteMessage(message: IMessage) {
+    if (message?.id) {
+      messageService.deleteMessage(message.id).then((res) => {
+        if (res.isSuccess) {
+          const receiverSocket = this.get(message.receiverId);
+          const senderSocket = this.get(message.senderId);
+          receiverSocket?.emit(ESocketEvents.DELETE_MESSAGE, message.id);
+          senderSocket?.emit(ESocketEvents.DELETE_MESSAGE, message.id);
+
+          senderSocket?.emit(ESocketEvents.HISTORY_CHANGE, message.receiverId);
+          receiverSocket?.emit(ESocketEvents.HISTORY_CHANGE, message.senderId);
+        }
+      });
+    }
   }
   add(socket: Socket) {
     this.socketIds[socket.data.user.id] = socket.id;
@@ -96,6 +118,9 @@ class SocketController {
         return;
       }
       this.sendMessage({ senderId: user.id!, content: message.content, receiverId: message.receiverId });
+    });
+    socket.on('delete-message', (message: IMessage) => {
+      this.deleteMessage(message);
     });
   }
 

@@ -1,4 +1,5 @@
 import { EStatusCode } from '../common/constants/status-code.constant';
+import { IApiResponse } from '../common/models/api.model';
 import { IMessage } from '../common/models/message.model';
 import { IPagination } from '../common/models/pagination.model';
 import apiService from './api.service';
@@ -6,6 +7,10 @@ import userService from './user.service';
 
 export const messageDbPath = '/messages';
 class MessageService {
+  async getById(messageId: number) {
+    const { data: message } = await apiService.get<IMessage | undefined>(`${messageDbPath}/${messageId}`);
+    return message;
+  }
   async getMessages(senderId: number, receiverId: number, options?: IPagination): Promise<IMessage[]> {
     try {
       let start: number = 0,
@@ -80,6 +85,7 @@ class MessageService {
         receiverId,
         senderId,
         sendTimestamp: new Date().getTime(),
+        isRead: false,
         isDeleted: false,
       };
       const createdMessage = await this.saveMessage(message);
@@ -98,17 +104,48 @@ class MessageService {
         };
       }
     } catch (error) {
+      return { isSuccess: false, message: 'Fail! Try again later.', status: 500 };
+    }
+  }
+  async deleteMessage(messageId: number) {
+    try {
+      const { data, status } = await apiService.update(`${messageDbPath}/${messageId}`, {
+        isDeleted: true,
+        modifyTimestamp: new Date().getTime(),
+      });
+      if (data?.isDeleted) {
+        return {
+          isSuccess: true,
+          message: 'Delete successfully!',
+          status,
+        };
+      } else {
+        return {
+          isSuccess: false,
+          message: 'Delete failed!',
+          status,
+        };
+      }
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      return {
+        isSuccess: false,
+        message: 'Delete failed!',
+        status: 500,
+      };
+    }
+  }
+
+  async updateMessage(message: IMessage, patchValue: Partial<IMessage>) {
+    try {
+      const { id } = message;
+      const { data } = await apiService.update<IMessage>(`${messageDbPath}/${id}`, patchValue);
+      return data;
+    } catch (error) {
       return null;
     }
   }
-  async deleteMessages(messageId: number): Promise<void> {
-    try {
-      await apiService.update(`${messageDbPath}/${messageId}`, { isDeleted: true });
-    } catch (error) {
-      console.error('Error deleting message:', error);
-      throw new Error('Failed to delete message.');
-    }
-  }
+
   async saveMessage(message: IMessage) {
     try {
       const { content, receiverId, senderId } = message;

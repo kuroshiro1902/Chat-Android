@@ -8,6 +8,8 @@ import { IMessage } from '../models/message.model';
 
 export const SocketHandler: { [key: string]: (...data: any) => any } = {
   receiveMessage: (message: IMessage) => {},
+  deleteMessage: (messageId: number) => {},
+  historyChange: () => {},
 };
 
 export interface SocketData {
@@ -45,6 +47,12 @@ function SocketProvider({ children, navigation }: any) {
       'friend-offline': (data: IUser) => {
         setOnlineFriendIds((prev) => ({ ...prev, [data.id]: false }));
       },
+      'delete-message': (messageId: number) => {
+        SocketHandler.deleteMessage?.(messageId);
+      },
+      'history-change': () => {
+        SocketHandler.historyChange();
+      },
       message: (data: IMessage) => {
         SocketHandler.receiveMessage?.(data);
       },
@@ -58,12 +66,10 @@ function SocketProvider({ children, navigation }: any) {
   useEffect(() => {
     const initSocketClient = async () => {
       if (!user) {
+        client?.disconnect();
         setClient(null);
         setOnlineFriendIds({});
         return;
-      }
-      if (client) {
-        client.disconnect();
       }
       const token = await getToken();
       if (user && token && !client) {

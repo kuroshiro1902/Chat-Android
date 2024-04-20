@@ -1,0 +1,9 @@
+Laptop phát wifi -> điện thoại kết nối đến.
+
+npx expo start --tunnel
+
+chuyển sang expo go: s
+
+vào expo -> nhập url ở dòng  Metro waiting on exp: ...
+
+- note: Khi click vào một tin nhắn thì cập nhật lại hết các đoạn tin nhắn chưa đọc -> đã đọc
