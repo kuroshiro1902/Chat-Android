@@ -12,7 +12,7 @@ export enum ESocketEvents {
   MESSAGE = 'message',
   SEND_MESSAGE_FAIL = 'send-message-fail',
   DELETE_MESSAGE = 'delete-message',
-  HISTORY_CHANGE = 'history-change', // emit when someone send or delete message
+  NEWEST_MESSAGE = 'newest-message', // emit when someone send or delete message
   UNAUTHORIZED = 'unauthorized',
 }
 class SocketController {
@@ -44,8 +44,6 @@ class SocketController {
             }
           }
         });
-        console.log({ onlineFriends });
-
         _socket.emit(ESocketEvents.GET_ONLINE_FRIENDS, onlineFriends);
       });
     }
@@ -62,36 +60,44 @@ class SocketController {
       });
     });
   }
-  sendMessage(message: IMessageInput) {
-    messageService.sendMessage(message).then((res) => {
-      if (res) {
-        const senderSocket = this.get(message.senderId);
-        if (res.isSuccess) {
-          const receiverSocket = this.get(message.receiverId);
-          senderSocket?.emit(ESocketEvents.MESSAGE, res);
-          receiverSocket?.emit(ESocketEvents.MESSAGE, res);
+  async sendMessage(messageInput: IMessageInput) {
+    const res = await messageService.sendMessage(messageInput);
+    if (res?.data) {
+      const message = res.data;
+      const senderSocket = this.get(message.senderId);
+      if (res.isSuccess) {
+        const receiverSocket = this.get(message.receiverId);
+        senderSocket?.emit(ESocketEvents.MESSAGE, message);
+        receiverSocket?.emit(ESocketEvents.MESSAGE, message);
 
-          senderSocket?.emit(ESocketEvents.HISTORY_CHANGE, message.receiverId);
-          receiverSocket?.emit(ESocketEvents.HISTORY_CHANGE, message.senderId);
-        } else {
-          senderSocket?.emit(ESocketEvents.SEND_MESSAGE_FAIL, res);
-        }
+        senderSocket?.emit(ESocketEvents.NEWEST_MESSAGE, message);
+        receiverSocket?.emit(ESocketEvents.NEWEST_MESSAGE, message);
+      } else {
+        senderSocket?.emit(ESocketEvents.SEND_MESSAGE_FAIL, message);
       }
-    });
+    }
   }
-  deleteMessage(message: IMessage) {
+  async deleteMessage(message: IMessage) {
     if (message?.id) {
-      messageService.deleteMessage(message.id).then((res) => {
-        if (res.isSuccess) {
-          const receiverSocket = this.get(message.receiverId);
-          const senderSocket = this.get(message.senderId);
-          receiverSocket?.emit(ESocketEvents.DELETE_MESSAGE, message.id);
-          senderSocket?.emit(ESocketEvents.DELETE_MESSAGE, message.id);
+      const res = await messageService.deleteMessage(message.id);
+      if (res.isSuccess) {
+        const { id, senderId, receiverId } = message;
+        const receiverSocket = this.get(receiverId);
+        const senderSocket = this.get(senderId);
+        receiverSocket?.emit(ESocketEvents.DELETE_MESSAGE, id);
+        senderSocket?.emit(ESocketEvents.DELETE_MESSAGE, id);
 
-          senderSocket?.emit(ESocketEvents.HISTORY_CHANGE, message.receiverId);
-          receiverSocket?.emit(ESocketEvents.HISTORY_CHANGE, message.senderId);
-        }
-      });
+        const newestMessage = (
+          await messageService.getMessages(senderId, receiverId, {
+            pageIndex: 1,
+            perPage: 1,
+            sortBy: 'sendTimestamp',
+            order: 'desc',
+          })
+        )?.[0];
+        senderSocket?.emit(ESocketEvents.NEWEST_MESSAGE, newestMessage);
+        receiverSocket?.emit(ESocketEvents.NEWEST_MESSAGE, newestMessage);
+      }
     }
   }
   add(socket: Socket) {
@@ -107,6 +113,8 @@ class SocketController {
   }
 
   private initEvents(socket: Socket) {
+    console.log('init events again');
+
     this.online(socket);
     socket.on('disconnect', () => {
       console.log(socket?.data?.user?.name + ' disconnected.');

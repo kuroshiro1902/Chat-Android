@@ -6,10 +6,11 @@ import { IUser } from '../models/user.model';
 import { getToken } from '../api';
 import { IMessage } from '../models/message.model';
 
-export const SocketHandler: { [key: string]: (...data: any) => any } = {
-  receiveMessage: (message: IMessage) => {},
-  deleteMessage: (messageId: number) => {},
-  historyChange: () => {},
+export const SocketHandler = {
+  receiveMessage: (message: IMessage): void => {},
+  deleteMessage: (messageId: number): void => {},
+  newestMessage: (message: IMessage): void => {},
+  hasReadMessages: (senderId: number): void => {},
 };
 
 export interface SocketData {
@@ -17,16 +18,12 @@ export interface SocketData {
 }
 export const SocketContext = createContext<SocketData>({} as SocketData);
 function SocketProvider({ children, navigation }: any) {
-  const { user, setUser, setOnlineFriendIds } = useContext(UserContext);
+  const { user, setUser, setOnlineFriendIds, setIsNotReadMessageOfFriendIds } = useContext(UserContext);
   const [client, setClient] = useState<Socket | null>(null);
 
   const initEventListeners = useCallback((client: Socket) => {
-    // client.on('connect', () => {
-    //   console.log('Connect to server!'); // TEST
-    // });
-    // client.on('disconnect', () => {
-    //   console.log('Disconnect to server!'); // TEST
-    // });
+    console.log('init socket client event listeners');
+
     client.on('connect_error', (err) => {
       console.log('Connect error!');
       console.log(err);
@@ -34,7 +31,9 @@ function SocketProvider({ children, navigation }: any) {
     client.on('unauthorized', () => {
       console.log('Token không hợp lệ.'); // TEST
     });
-
+    SocketHandler.receiveMessage = (message) => {
+      setIsNotReadMessageOfFriendIds((prev) => ({ ...prev, [message.senderId]: true }));
+    };
     const chatEvents: { [key: string]: (...args: any[]) => void } = {
       'get-online-friends': (data: IUser[]) => {
         console.log('online friends:', data);
@@ -50,8 +49,8 @@ function SocketProvider({ children, navigation }: any) {
       'delete-message': (messageId: number) => {
         SocketHandler.deleteMessage?.(messageId);
       },
-      'history-change': () => {
-        SocketHandler.historyChange();
+      'newest-message': (data: IMessage) => {
+        SocketHandler.newestMessage(data);
       },
       message: (data: IMessage) => {
         SocketHandler.receiveMessage?.(data);

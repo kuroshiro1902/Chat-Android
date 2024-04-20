@@ -3,5 +3,6 @@ export interface IMessage {
   content: string;
   receiverId: number;
   senderId: number;
+  isRead: boolean;
   sendTimestamp: number;
 }

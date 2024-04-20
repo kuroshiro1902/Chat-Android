@@ -7,12 +7,15 @@ import { color, theme } from '../../theme';
 import { UserContext } from '../../contexts/User';
 import { useNavigation } from '@react-navigation/native';
 import { IUser } from '../../models/user.model';
-
+import { SocketHandler } from '../../contexts/Socket';
+let renderCount = 0;
 const FriendItem = ({ item }: { item: IUser }) => {
+  console.log('rerender friend item', renderCount++, 'time');
+
   const navigation: any = useNavigation();
-  const { user, onlineFriendIds, setUser } = useContext(UserContext);
+  const { user, onlineFriendIds, isNotReadMessageOfFriendIds } = useContext(UserContext);
   const roomInput: IRoomInput = { receiverId: item.id, name: item.name };
-  const [message, setMessage] = useState<IMessage | undefined>();
+  const [message, setMessage] = useState<IMessage | null>(null);
 
   const getMessages = useCallback(
     async (options?: any) => {
@@ -20,17 +23,22 @@ const FriendItem = ({ item }: { item: IUser }) => {
         receiverId: item.id,
         options,
       });
-      setMessage((_) => data.data.reverse().pop() || undefined);
+      console.log({ data }); // GET TOO MUCH MESSAGES, need fix
+
+      setMessage((_) => data.data.reverse().pop() || null);
     },
-    [item],
+    [item?.id],
   );
 
   useEffect(() => {
-    getMessages();
-    return () => {
-      setMessage(undefined);
+    SocketHandler.newestMessage = (message) => {
+      setMessage(message);
     };
-  }, [item.id]);
+    getMessages({ pageIndex: 1, perPage: 1, sortBy: 'sendTimestamp', order: 'desc' });
+    return () => {
+      setMessage(null);
+    };
+  }, [item?.id]);
 
   return (
     <TouchableOpacity
@@ -39,20 +47,40 @@ const FriendItem = ({ item }: { item: IUser }) => {
       }}
     >
       <View style={styles.block}>
-        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
-          <View style={theme.avatar}>
-            <Image style={{ width: '100%', height: '100%' }} source={require('../../assets/logo/user.png')}></Image>
+        <View style={{ display: 'flex', flex: 1, flexDirection: 'row', gap: 8 }}>
+          <View style={theme.avatar} id={`avatar-${item.id}`}>
+            <Image style={{ width: 44, height: 44 }} source={require('../../assets/logo/user.png')}></Image>
+            {onlineFriendIds[item.id] ? <View style={theme.online}></View> : undefined}
           </View>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={styles.friendName}>{item.name}</Text>
-            <Text style={{ flex: 1, color: color.darkGray }} numberOfLines={1}>
-              {message?.content || ''}
-            </Text>
+            <View style={{ display: 'flex', flexDirection: 'row', gap: 12, marginTop: 6 }}>
+              <Text
+                style={{
+                  flex: 1,
+                  color: message && isNotReadMessageOfFriendIds[message?.senderId] ? color.darkGreen : color.darkGray,
+                  fontWeight: message && isNotReadMessageOfFriendIds[message?.senderId] ? '700' : '400',
+                }}
+                numberOfLines={1}
+              >
+                {message?.content || ''}
+              </Text>
+            </View>
           </View>
         </View>
         <View style={{ display: 'flex', height: '100%', flexDirection: 'column', justifyContent: 'center' }}>
-          {onlineFriendIds[item.id] ? (
-            <View style={{ width: 8, height: 8, borderRadius: 8, backgroundColor: color.green }}></View>
+          {message && isNotReadMessageOfFriendIds[message?.senderId] ? (
+            <Text
+              style={{
+                backgroundColor: color.crimson,
+                borderRadius: 8,
+                paddingHorizontal: 4,
+                fontSize: 12,
+                color: '#ffffff',
+              }}
+            >
+              N
+            </Text>
           ) : undefined}
         </View>
       </View>
@@ -62,9 +90,10 @@ const FriendItem = ({ item }: { item: IUser }) => {
 
 const styles = StyleSheet.create({
   block: {
-    height: 60,
+    height: 68,
     backgroundColor: '#ffffff',
     padding: 8,
+    gap: 8,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',

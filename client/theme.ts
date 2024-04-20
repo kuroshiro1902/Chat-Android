@@ -2,10 +2,12 @@ import { StyleSheet } from 'react-native';
 
 export const color = {
   darkGreen: '#264653',
+  lightGreen: '#35bb6e',
   green: '#2a9d8f',
   yellow: '#e9c46a',
   orange: '#f4a261',
   red: '#e76f51',
+  crimson: '#f33b5e',
   blue: '#027291',
   gray: '#adb6b6',
   lightGray: '#adb6b640',
@@ -48,12 +50,20 @@ export const theme = StyleSheet.create({
     borderColor: color.blue,
   },
   avatar: {
+    position: 'relative',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 44,
-    width: 44,
+    height: '100%',
     borderRadius: 44,
-    backgroundColor: color.lightGray,
+  },
+  online: {
+    width: 8,
+    height: 8,
+    borderRadius: 8,
+    backgroundColor: color.lightGreen,
+    position: 'absolute',
+    bottom: 4,
+    right: 2,
   },
 });

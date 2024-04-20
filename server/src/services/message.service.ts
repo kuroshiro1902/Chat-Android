@@ -11,7 +11,14 @@ class MessageService {
     const { data: message } = await apiService.get<IMessage | undefined>(`${messageDbPath}/${messageId}`);
     return message;
   }
-  async getMessages(senderId: number, receiverId: number, options?: IPagination): Promise<IMessage[]> {
+  async getMessages(
+    senderId: number,
+    receiverId: number,
+    options?: IPagination,
+    fieldOptions?: Partial<IMessage>,
+  ): Promise<IMessage[]> {
+    console.log({ options });
+
     try {
       let start: number = 0,
         end: number = 20;
@@ -37,6 +44,7 @@ class MessageService {
         // })(),
         _sort: options?.sortBy ?? 'id',
         _order: options?.order ?? 'desc',
+        ...fieldOptions,
       });
       console.log(messages?.length);
 
@@ -136,26 +144,39 @@ class MessageService {
     }
   }
 
-  async updateMessage(message: IMessage, patchValue: Partial<IMessage>) {
+  async updateMessages(
+    senderId: number,
+    receiverId: number,
+    patchValue: Partial<IMessage>,
+    conditions?: Partial<IMessage>,
+  ) {
     try {
-      const { id } = message;
-      const { data } = await apiService.update<IMessage>(`${messageDbPath}/${id}`, patchValue);
-      return data;
-    } catch (error) {
-      return null;
+      const { data: messages } = await apiService.get<IMessage[]>(messageDbPath, {
+        senderId,
+        receiverId,
+        ...conditions,
+      });
+      const requests = messages.map((m) => apiService.update<IMessage>(`${messageDbPath}/${m.id}`, patchValue));
+      const responses = (await Promise.all(requests)).map((r) => r.data);
+      return {
+        isSuccess: true,
+        data: responses,
+        status: EStatusCode.SUCCESS,
+      };
+    } catch (error: any) {
+      console.error(error);
+      return {
+        isSuccess: false,
+        data: [],
+        message: error.message,
+        status: EStatusCode.SERVER_ERROR,
+      };
     }
   }
 
   async saveMessage(message: IMessage) {
     try {
-      const { content, receiverId, senderId } = message;
-      const { data } = await apiService.post<IMessage>(messageDbPath, {
-        content,
-        receiverId,
-        senderId,
-        sendTimestamp: new Date().getTime(),
-        isDeleted: false,
-      });
+      const { data } = await apiService.post<IMessage>(messageDbPath, message);
       return data;
     } catch (error) {
       return null;

@@ -32,7 +32,7 @@ import SelectedMessageForm from './SelectedMessageForm';
 import Overlay from '../../components/Overlay';
 
 function Room({ navigation }: any) {
-  const { user } = useContext(UserContext);
+  const { user, setIsNotReadMessageOfFriendIds } = useContext(UserContext);
   const { client } = useContext(SocketContext);
   const params = useRoute().params as IRoomInput;
   const [isLoading, setIsLoading] = useState(false);
@@ -41,14 +41,28 @@ function Room({ navigation }: any) {
   const [selectedMessage, setSelectedMessage] = useState<IMessage | null>(null);
   const messageListCtnRef = useRef<any>();
 
-  useEffect(() => {
-    SocketHandler.receiveMessage = (res: IResponse<IMessage>) => {
-      if (res.data) {
-        setMessages((prev) => [...prev, res.data!]);
-        setTimeout(() => {
-          messageListCtnRef.current.scrollToEnd({ animated: true });
-        }, 200);
+  const { receiverId, name } = params;
+
+  const updateToReadMessages = useCallback(async (senderId: number) => {
+    api.update<{ data?: IMessage[] }>(`messages/read-messages/${senderId}`).then(({ data }) => {
+      const message = data.data?.[0];
+      if (message) {
+        setIsNotReadMessageOfFriendIds((prev) => ({ ...prev, [message.senderId]: false }));
       }
+    });
+  }, []);
+
+  useEffect(() => {
+    SocketHandler.receiveMessage = (message) => {
+      setMessages((prev) => [...prev, message]);
+      setTimeout(() => {
+        messageListCtnRef.current.scrollToEnd({ animated: true });
+        console.log(receiverId, message);
+
+        if (message.senderId === receiverId) {
+          updateToReadMessages(message.senderId);
+        }
+      }, 200);
     };
 
     SocketHandler.deleteMessage = (messageId: number) => {
@@ -57,13 +71,14 @@ function Room({ navigation }: any) {
         setMessages((prev) => prev.filter((m) => m.id !== messageId));
       }
     };
-    return () => {
-      delete SocketHandler.receiveMessage;
-      delete SocketHandler.deleteMessage;
-    };
-  }, []);
 
-  const { receiverId, name } = params;
+    return () => {
+      SocketHandler.receiveMessage = (message) => {
+        setIsNotReadMessageOfFriendIds((prev) => ({ ...prev, [message.senderId]: true }));
+      };
+      SocketHandler.deleteMessage = () => {};
+    };
+  }, [receiverId]);
 
   const handleSendMessage = useCallback(() => {
     setMessageInputValue((prev) => {
@@ -84,12 +99,14 @@ function Room({ navigation }: any) {
       const { data } = await api.post<{ data: IMessage[] }>('/messages/get-messages', { receiverId });
       setMessages((_) => data.data.reverse());
     };
+
     getMessages().finally(() => {
       setIsLoading(false);
       setTimeout(() => {
         messageListCtnRef.current?.scrollToEnd({ animated: true });
       }, 200);
     });
+    updateToReadMessages(receiverId);
 
     return () => {
       setMessages([]);

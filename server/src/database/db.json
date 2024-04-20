@@ -3,7 +3,7 @@
     {
       "username": "kuroshiro1902",
       "password": "$2b$10$DkyPPRpJ7FxbLhUyc7pnauR5c3aMAMz8c2CBclsLzmbXD76RBoZd2",
-      "name": "Bui Thanh Son",
+      "name": "Son - User 1",
       "friendIds": [
         2
       ],
@@ -12,7 +12,7 @@
     {
       "username": "kuroshiro19021",
       "password": "$2b$10$dkeS24PtWlTyJYjtVi8Xr.whCdSQ0nSBrRd.eT37TtGzkzGIGCJDG",
-      "name": "Nguyen",
+      "name": "Nguyen - User 2",
       "friendIds": [
         1
       ],
@@ -21,12 +21,295 @@
   ],
   "messages": [
     {
+      "content": "From 2 to 1 - 1 not read yet.",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713616032074,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 1
+    },
+    {
+      "content": "from 1 to 2 - 2 has read!",
+      "receiverId": 2,
+      "senderId": 1,
+      "sendTimestamp": 1713616064456,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 2
+    },
+    {
+      "content": "new message send!",
+      "receiverId": 2,
+      "senderId": 1,
+      "sendTimestamp": 1713618490974,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 3
+    },
+    {
+      "content": "hello",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713618568924,
+      "isRead": true,
+      "isDeleted": true,
+      "id": 4,
+      "modifyTimestamp": 1713618586471
+    },
+    {
       "content": "test",
       "receiverId": 1,
       "senderId": 2,
-      "sendTimestamp": 1713609974081,
+      "sendTimestamp": 1713618607383,
+      "isRead": true,
       "isDeleted": false,
-      "id": 1
+      "id": 5
+    },
+    {
+      "content": "Hello",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713619473940,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 6
+    },
+    {
+      "content": "asdlaskd;lkds;alkd;salkd;laskd;l kw;lk;l kw;qlekwqekqwl;ke;qwkeqwkeqwke l;ekqwl;e kqwl;ekqw;l\nqwelqw;el\n q;ưlek",
+      "receiverId": 2,
+      "senderId": 1,
+      "sendTimestamp": 1713620685602,
+      "isRead": true,
+      "isDeleted": true,
+      "id": 7,
+      "modifyTimestamp": 1713622209856
+    },
+    {
+      "content": "Hi",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713622352424,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 8
+    },
+    {
+      "content": "Test",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713623045225,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 9
+    },
+    {
+      "content": "Hello",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713623058485,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 10
+    },
+    {
+      "content": "Hi",
+      "receiverId": 2,
+      "senderId": 1,
+      "sendTimestamp": 1713623066036,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 11
+    },
+    {
+      "content": "Hi2",
+      "receiverId": 2,
+      "senderId": 1,
+      "sendTimestamp": 1713623074407,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 12
+    },
+    {
+      "content": "hi",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713639117071,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 13
+    },
+    {
+      "content": "hi",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713639230855,
+      "isRead": true,
+      "isDeleted": true,
+      "id": 14,
+      "modifyTimestamp": 1713639237219
+    },
+    {
+      "content": "hiii",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713639241665,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 15
+    },
+    {
+      "content": "halo",
+      "receiverId": 2,
+      "senderId": 1,
+      "sendTimestamp": 1713639540185,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 16
+    },
+    {
+      "content": "helo",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713639584225,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 17
+    },
+    {
+      "content": "hèo",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713639713709,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 18
+    },
+    {
+      "content": "hèo 1",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713640126905,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 19
+    },
+    {
+      "content": "hèo 11",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713640133858,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 20
+    },
+    {
+      "content": "hi",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713640143288,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 21
+    },
+    {
+      "content": "hi1",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713640406141,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 22
+    },
+    {
+      "content": "duma",
+      "receiverId": 2,
+      "senderId": 1,
+      "sendTimestamp": 1713640639472,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 23
+    },
+    {
+      "content": "chạy đi mà plz",
+      "receiverId": 2,
+      "senderId": 1,
+      "sendTimestamp": 1713640698945,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 24
+    },
+    {
+      "content": "huhu chạy rồi",
+      "receiverId": 2,
+      "senderId": 1,
+      "sendTimestamp": 1713640711268,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 25
+    },
+    {
+      "content": "phê vcl",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713640721378,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 26
+    },
+    {
+      "content": "Bố mày fix được rồi hahahahaha",
+      "receiverId": 2,
+      "senderId": 1,
+      "sendTimestamp": 1713640756794,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 27
+    },
+    {
+      "content": "ngon",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713640764487,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 28
+    },
+    {
+      "content": "duuuu",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713640776784,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 29
+    },
+    {
+      "content": "test phát nữa",
+      "receiverId": 1,
+      "senderId": 2,
+      "sendTimestamp": 1713640784243,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 30
+    },
+    {
+      "content": "đùuuuu",
+      "receiverId": 2,
+      "senderId": 1,
+      "sendTimestamp": 1713640792819,
+      "isRead": true,
+      "isDeleted": false,
+      "id": 31
+    },
+    {
+      "content": "vip vailonnnnn",
+      "receiverId": 2,
+      "senderId": 1,
+      "sendTimestamp": 1713640800203,
+      "isRead": false,
+      "isDeleted": false,
+      "id": 32
     }
   ]
 }

@@ -9,8 +9,13 @@ import FriendItem from './FriendItem';
 
 function Home({ navigation }: any) {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, onlineFriendIds, setUser } = useContext(UserContext);
-  const [friends, setFriends] = useState<IUser[]>([]);
+  const { user, friends, setFriends, setIsNotReadMessageOfFriendIds } = useContext(UserContext);
+
+  useEffect(() => {
+    setIsNotReadMessageOfFriendIds((prev) => {
+      return friends.reduce((prev, friend) => ({ ...prev, [friend.id]: false }), {});
+    });
+  }, [friends]);
 
   useEffect(() => {
     if (!user) {

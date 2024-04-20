@@ -11,7 +11,6 @@ class MessageController {
       const { id: senderId } = req.user;
       // @ts-ignore
       const { options, receiverId } = req.body;
-      console.log({ ob: req.body });
       if (!receiverId) {
         return res.status(EStatusCode.INVALID_INPUT).json({ isSuccess: false, message: 'Không có id người nhận!' });
       }
@@ -62,6 +61,27 @@ class MessageController {
       }
       const r = await messageService.deleteMessage(messageId);
       return res.status(r.status).json({ isSuccess: r.isSuccess, message: r.message });
+    } catch (error) {
+      console.error(error);
+      serverError(res);
+    }
+  }
+
+  async hasReadMessage(req: ApiRequest, res: ApiResponse) {
+    // Đã đọc message của ai gửi tới
+    try {
+      // @ts-ignore
+      const { id: selfId } = req.user;
+      const senderId = req.params.senderId;
+      console.log({ senderId });
+
+      if (!senderId) {
+        return res.status(EStatusCode.INVALID_INPUT).json({ isSuccess: false, message: 'senderId is required!' });
+      }
+
+      const response = await messageService.updateMessages(+senderId, selfId, { isRead: true }, { isRead: false });
+
+      return res.status(response.status).json({ isSuccess: true, data: response.data, message: response.message });
     } catch (error) {
       console.error(error);
       serverError(res);
