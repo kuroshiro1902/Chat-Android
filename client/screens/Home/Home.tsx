@@ -43,7 +43,7 @@ function Home({ navigation }: any) {
         <Text style={styles.title}>
           Xin chào, <Text style={styles.name}>{user?.name}</Text>
         </Text>
-        <Text style={{ paddingLeft: 4, marginBottom: -8 }}>Bạn bè</Text>
+        <Text style={{ paddingLeft: 4, marginBottom: -8 }}>Bạn bè ({friends?.length})</Text>
         <FlatList
           data={friends}
           renderItem={({ item }) => <FriendItem item={item} />}

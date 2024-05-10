@@ -9,7 +9,7 @@ import { tokenSign } from '../../common/models/token-sign.model';
 import apiService from '../../services/api.service';
 import userService from '../../services/user.service';
 
-const authDbPath = '/users';
+// const authDbPath = '/users';
 const tokenLifeTime = '7d';
 
 class AuthController {
@@ -58,8 +58,11 @@ class AuthController {
         name,
         friendIds: [],
       };
-      const { data } = await apiService.post<IUser>(authDbPath, user);
-      return res.status(EStatusCode.CREATED).json({ data: UserDTO(data) });
+      const savedUser = await userService.createUser(user);
+      if (!savedUser) {
+        throw new Error('Create user error');
+      }
+      return res.status(EStatusCode.CREATED).json({ data: UserDTO(savedUser) });
     } catch (error) {
       console.error(error);
       serverError(res);

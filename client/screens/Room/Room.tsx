@@ -1,18 +1,6 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
-import {
-  Alert,
-  Button,
-  FlatList,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableHighlight,
-  View,
-} from 'react-native';
+import { Button, FlatList, Image, Text, TextInput, TouchableHighlight, View } from 'react-native';
 import { color, theme } from '../../theme';
 import FeatherIcon from 'react-native-vector-icons/AntDesign';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
@@ -31,15 +19,22 @@ import { IResponse } from '../../models/response.model';
 import SelectedMessageForm from './SelectedMessageForm';
 import Overlay from '../../components/Overlay';
 
+const pageSize = 20;
+
 function Room({ navigation }: any) {
   const { user, setIsNotReadMessageOfFriendIds } = useContext(UserContext);
   const { client } = useContext(SocketContext);
   const params = useRoute().params as IRoomInput;
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [messageInputValue, setMessageInputValue] = useState('');
   const [selectedMessage, setSelectedMessage] = useState<IMessage | null>(null);
   const messageListCtnRef = useRef<any>();
+
+  // page Metadata
+  const [pageIndex, setPageIndex] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(true);
 
   const { receiverId, name } = params;
 
@@ -50,6 +45,43 @@ function Room({ navigation }: any) {
         setIsNotReadMessageOfFriendIds((prev) => ({ ...prev, [message.senderId]: false }));
       }
     });
+  }, []);
+
+  const handleSendMessage = useCallback(() => {
+    setMessageInputValue((prev) => {
+      const content = prev?.trim();
+      if (!!!content) return prev;
+      client?.emit('message', { senderId: user?.id, receiverId, content } as IMessage);
+      return '';
+    });
+  }, []);
+
+  const handleDeleteMessage = useCallback(async (message: IMessage) => {
+    client?.emit('delete-message', message);
+  }, []);
+
+  const getMessages = useCallback(
+    async (pageIndex?: number) => {
+      try {
+        const { data } = await api.post<{ data: IMessage[] }>('/messages/get-messages', {
+          receiverId,
+          options: { pageIndex },
+        });
+        return data.data.reverse();
+      } catch (error: any) {
+        console.log('Error getting messages:', error?.message);
+        return [];
+      }
+    },
+    [receiverId],
+  );
+
+  const handleLoadMore = useCallback(async () => {
+    const _pageIndex = pageIndex + 1;
+    const messages = await getMessages(_pageIndex);
+    if (messages.length) {
+      console.log('Tạm dừng lại để chuyển đổi database');
+    } // Tạm dừng lại để chuyển đổi database
   }, []);
 
   useEffect(() => {
@@ -80,32 +112,20 @@ function Room({ navigation }: any) {
     };
   }, [receiverId]);
 
-  const handleSendMessage = useCallback(() => {
-    setMessageInputValue((prev) => {
-      const content = prev?.trim();
-      if (!!!content) return prev;
-      client?.emit('message', { senderId: user?.id, receiverId, content } as IMessage);
-      return '';
-    });
-  }, []);
-
-  const handleDeleteMessage = useCallback(async (message: IMessage) => {
-    client?.emit('delete-message', message);
-  }, []);
-
   useEffect(() => {
-    const getMessages = async () => {
-      setIsLoading(true);
-      const { data } = await api.post<{ data: IMessage[] }>('/messages/get-messages', { receiverId });
-      setMessages((_) => data.data.reverse());
-    };
+    setIsLoading(true);
+    getMessages()
+      .then((messages) => {
+        console.log({ messages });
 
-    getMessages().finally(() => {
-      setIsLoading(false);
-      setTimeout(() => {
-        messageListCtnRef.current?.scrollToEnd({ animated: true });
-      }, 200);
-    });
+        setMessages(messages);
+      })
+      .finally(() => {
+        setTimeout(() => {
+          messageListCtnRef.current?.scrollToEnd({ animated: true });
+          setIsLoading(false);
+        }, 200);
+      });
     updateToReadMessages(receiverId);
 
     return () => {
@@ -158,8 +178,37 @@ function Room({ navigation }: any) {
         <View style={{ flex: 1 }}>
           <FlatList
             ref={messageListCtnRef}
-            data={messages}
-            renderItem={({ item }) => {
+            data={[{}, ...messages] as IMessage[]}
+            renderItem={({ item, index }) => {
+              if (index === 0) {
+                if (messages.length < 20) {
+                  return <></>;
+                }
+                return (
+                  <View
+                    style={{
+                      paddingHorizontal: 16,
+                      marginVertical: 12,
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {isLoadingMore ? (
+                      <Image style={{ height: 32, width: 32 }} source={require('../../assets/loading.gif')}></Image>
+                    ) : (
+                      <Button
+                        color={color.blue}
+                        title="Xem thêm"
+                        onPress={(e) => {
+                          setIsLoadingMore(true);
+                        }}
+                      />
+                    )}
+                  </View>
+                );
+              }
+
               const _styles =
                 item.receiverId === receiverId
                   ? { message: styles.selfMessage, ctn: styles.selfMessageCtn, color: '#ffffff' }

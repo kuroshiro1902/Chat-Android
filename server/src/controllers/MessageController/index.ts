@@ -27,12 +27,11 @@ class MessageController {
       // @ts-ignore
       const { id: senderId } = req.user;
       const { content, receiverId } = req.body;
-      const response = await messageService.sendMessage({ senderId, content, receiverId });
-      if (!response) {
+      const message = await messageService.sendMessage({ senderId, content, receiverId });
+      if (!message) {
         return res.status(EStatusCode.SERVER_ERROR).json({ isSuccess: false, message: 'Failed to send message!' });
       }
-      const { status, isSuccess, data, message } = response;
-      return res.status(status).json({ isSuccess, data, message });
+      return res.status(EStatusCode.SUCCESS).json({ isSuccess: true, data: message });
     } catch (error) {
       console.error(error);
       serverError(res);
@@ -60,7 +59,9 @@ class MessageController {
           .json({ isSuccess: false, message: 'Bạn không có quyền xóa tin nhắn này!' });
       }
       const r = await messageService.deleteMessage(messageId);
-      return res.status(r.status).json({ isSuccess: r.isSuccess, message: r.message });
+      console.log({ r });
+
+      return res.status(EStatusCode.SUCCESS).json({ isSuccess: true, data: r });
     } catch (error) {
       console.error(error);
       serverError(res);
@@ -79,12 +80,12 @@ class MessageController {
         return res.status(EStatusCode.INVALID_INPUT).json({ isSuccess: false, message: 'senderId is required!' });
       }
 
-      const response = await messageService.updateMessages(+senderId, selfId, { isRead: true }, { isRead: false });
+      const messages = await messageService.updateMessagesToRead(+senderId, +selfId);
 
-      return res.status(response.status).json({ isSuccess: true, data: response.data, message: response.message });
-    } catch (error) {
+      return res.status(EStatusCode.SUCCESS).json({ isSuccess: true, data: messages });
+    } catch (error: any) {
       console.error(error);
-      serverError(res);
+      serverError(res, error.message);
     }
   }
 }

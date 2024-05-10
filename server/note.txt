@@ -1,0 +1,3 @@
+- làm chức năng load more
+- làm chức năng thêm bạn bè
+- làm chức năng tìm kiếm

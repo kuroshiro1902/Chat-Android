@@ -50,9 +50,13 @@ function SocketProvider({ children, navigation }: any) {
         SocketHandler.deleteMessage?.(messageId);
       },
       'newest-message': (data: IMessage) => {
+        console.log(data);
+
         SocketHandler.newestMessage(data);
       },
       message: (data: IMessage) => {
+        console.log(data);
+
         SocketHandler.receiveMessage?.(data);
       },
     };

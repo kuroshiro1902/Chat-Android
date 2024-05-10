@@ -61,26 +61,29 @@ class SocketController {
     });
   }
   async sendMessage(messageInput: IMessageInput) {
-    const res = await messageService.sendMessage(messageInput);
-    if (res?.data) {
-      const message = res.data;
-      const senderSocket = this.get(message.senderId);
-      if (res.isSuccess) {
+    const senderSocket = this.get(messageInput.senderId);
+    try {
+      const message = await messageService.sendMessage(messageInput);
+      console.log('realtime', { message });
+
+      if (message) {
         const receiverSocket = this.get(message.receiverId);
         senderSocket?.emit(ESocketEvents.MESSAGE, message);
         receiverSocket?.emit(ESocketEvents.MESSAGE, message);
 
         senderSocket?.emit(ESocketEvents.NEWEST_MESSAGE, message);
         receiverSocket?.emit(ESocketEvents.NEWEST_MESSAGE, message);
-      } else {
-        senderSocket?.emit(ESocketEvents.SEND_MESSAGE_FAIL, message);
       }
+    } catch (error) {
+      senderSocket?.emit(ESocketEvents.SEND_MESSAGE_FAIL, 'Gửi tin nhắn lỗi');
     }
   }
   async deleteMessage(message: IMessage) {
     if (message?.id) {
       const res = await messageService.deleteMessage(message.id);
-      if (res.isSuccess) {
+      console.log('deleteMessage', res);
+
+      if (res) {
         const { id, senderId, receiverId } = message;
         const receiverSocket = this.get(receiverId);
         const senderSocket = this.get(senderId);

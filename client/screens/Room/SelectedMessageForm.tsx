@@ -37,8 +37,6 @@ function SelectedMessageForm({
             if (Platform.OS === 'web') {
               if (window.confirm('Bạn có muốn xóa tin nhắn này không?')) {
                 console.log('confirm delete message');
-                console.log(handleDeleteMessage);
-
                 handleDeleteMessage(message);
               }
             } else {
