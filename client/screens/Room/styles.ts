@@ -73,6 +73,7 @@ export const styles = StyleSheet.create({
     height: 60,
     borderWidth: 1,
     fontSize: 18,
+    // @ts-ignore
     outlineStyle: 'none',
     borderColor: color.gray,
   },

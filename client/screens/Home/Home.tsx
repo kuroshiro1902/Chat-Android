@@ -1,11 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
-import { FlatList, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, ImageBackground, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { UserContext } from '../../contexts/User';
 import { color, theme } from '../../theme';
 import Loading from '../../components/Loading';
 import { IUser } from '../../models/user.model';
 import api from '../../api';
 import FriendItem from './FriendItem';
+import BackGroundImage from '../../components/BackgroundImage';
 
 function Home({ navigation }: any) {
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +40,8 @@ function Home({ navigation }: any) {
     <>
       <StatusBar hidden />
       {isLoading ? <Loading /> : undefined}
-      <View>
+      <BackGroundImage />
+      <View style={{ position: 'relative' }}>
         <Text style={styles.title}>
           Xin chào, <Text style={styles.name}>{user?.name}</Text>
         </Text>

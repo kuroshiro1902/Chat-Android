@@ -58,6 +58,22 @@ class UserService extends Service {
 
     return friends;
   }
+
+  async searchUsers(searchValue: string, options?: { exceptId?: number }) {
+    const users = await this.query<IUser>(
+      `
+        SELECT * 
+        FROM users 
+        WHERE LOWER(name)
+        LIKE LOWER('%${searchValue}%')
+        AND id != $1
+        ;
+      `,
+      [options?.exceptId ?? -1],
+    );
+
+    return users;
+  }
 }
 
 export default new UserService();

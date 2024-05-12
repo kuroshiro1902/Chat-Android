@@ -9,7 +9,11 @@ import { useNavigation } from '@react-navigation/native';
 import { IUser } from '../../models/user.model';
 import { SocketHandler } from '../../contexts/Socket';
 let renderCount = 0;
-const FriendItem = ({ item }: { item: IUser }) => {
+
+interface props {
+  item: IUser;
+}
+const FriendItem = ({ item }: props) => {
   console.log('rerender friend item', renderCount++, 'time');
 
   const navigation: any = useNavigation();

@@ -6,4 +6,5 @@ import { authMiddleware } from '../middlewares/auth.middleware';
 const userRouter = Router();
 
 userRouter.get('/friends', authMiddleware, (req, res) => userController.getFriendsOfUser(req, res));
+userRouter.get('/search', authMiddleware, (req, res) => userController.searchFriends(req, res));
 export default userRouter;

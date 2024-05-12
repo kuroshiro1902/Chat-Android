@@ -18,6 +18,23 @@ class UserController {
       serverError(res);
     }
   }
+  async searchFriends(req: ApiRequest, res: ApiResponse) {
+    try {
+      // @ts-ignore
+      const { id } = req.user;
+      const searchValue = req.query.search ?? '';
+      if (typeof searchValue === 'object') {
+        return res
+          .status(EStatusCode.INVALID_INPUT)
+          .json({ isSuccess: false, message: 'Search phải là 1 chuỗi kí tự.' });
+      }
+      const users = await userService.searchUsers(searchValue, { exceptId: id });
+      return res.status(EStatusCode.SUCCESS).json({ isSuccess: true, data: users.map((user) => UserDTO(user)) });
+    } catch (error) {
+      console.error(error);
+      serverError(res);
+    }
+  }
 }
 
 export default new UserController();
