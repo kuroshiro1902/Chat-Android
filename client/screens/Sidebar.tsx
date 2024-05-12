@@ -10,6 +10,7 @@ import Room from './Room/Room';
 import { RawButton } from 'react-native-gesture-handler';
 import { getUser, removeToken, removeUser } from '../api';
 import { IUser } from '../models/user.model';
+import Search from './Search/Search';
 
 const Drawer = createDrawerNavigator();
 
@@ -27,6 +28,15 @@ function Sidebar({ navigation }: any) {
         component={Login}
         options={{ headerShown: false, drawerItemStyle: { display: 'none' } }}
       />
+      <Drawer.Screen
+        name="Search"
+        options={{
+          title: 'Tìm kiếm bạn bè',
+          unmountOnBlur: true,
+        }}
+      >
+        {() => <Search navigation={navigation} />}
+      </Drawer.Screen>
       <Drawer.Screen name="Logout" options={{ headerShown: false, drawerLabel: 'Đăng xuất' }}>
         {() => {
           const logout = async () => {
