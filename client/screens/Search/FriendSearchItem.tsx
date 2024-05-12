@@ -2,14 +2,20 @@ import { Image, StyleSheet, Text } from 'react-native';
 import { TouchableOpacity, View } from 'react-native';
 import { IUser } from '../../models/user.model';
 import { color, theme } from '../../theme';
+import { useNavigation } from '@react-navigation/native';
 
 interface props {
   item: IUser;
 }
 
 function FriendSearchItem({ item }: props) {
+  const navigation: any = useNavigation();
   return (
-    <TouchableOpacity onPress={() => {}}>
+    <TouchableOpacity
+      onPress={() => {
+        navigation.navigate('Info', { userId: item.id });
+      }}
+    >
       <View style={styles.block}>
         <View style={{ display: 'flex', flex: 1, flexDirection: 'row', gap: 8 }}>
           <View style={theme.avatar} id={`avatar-${item.id}`}>

@@ -3,7 +3,7 @@ export interface IUser {
   name: string;
   username: string;
   password: string;
-  friendIds: number[];
+  // friendIds: number[];
 }
 
 export interface IUserDTO {

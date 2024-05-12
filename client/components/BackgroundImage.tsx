@@ -23,7 +23,7 @@ function BackGroundImage() {
           // left: 0,
           // bottom: 0,
           maxWidth: '100%',
-          opacity: 0.3,
+          opacity: 0.4,
         }}
         // source={require('../assets/bg.jpg')}
         source={require('../assets/logo/logo.png')}

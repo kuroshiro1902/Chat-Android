@@ -11,6 +11,8 @@ import { RawButton } from 'react-native-gesture-handler';
 import { getUser, removeToken, removeUser } from '../api';
 import { IUser } from '../models/user.model';
 import Search from './Search/Search';
+import Info from './Info/Info';
+import Self from './Self/Self';
 
 const Drawer = createDrawerNavigator();
 
@@ -29,13 +31,24 @@ function Sidebar({ navigation }: any) {
         options={{ headerShown: false, drawerItemStyle: { display: 'none' } }}
       />
       <Drawer.Screen
+        name="Self"
+        component={Self}
+        options={{
+          title: 'Trang cá nhân',
+          unmountOnBlur: true,
+        }}
+      >
+        {/* {() => <Room navigation={navigation} />} */}
+      </Drawer.Screen>
+      <Drawer.Screen
         name="Search"
+        component={Search}
         options={{
           title: 'Tìm kiếm bạn bè',
           unmountOnBlur: true,
         }}
       >
-        {() => <Search navigation={navigation} />}
+        {/* {() => <Search navigation={navigation} />} */}
       </Drawer.Screen>
       <Drawer.Screen name="Logout" options={{ headerShown: false, drawerLabel: 'Đăng xuất' }}>
         {() => {
@@ -56,6 +69,17 @@ function Sidebar({ navigation }: any) {
         }}
       >
         {() => <Room navigation={navigation} />}
+      </Drawer.Screen>
+      <Drawer.Screen
+        name="Info"
+        component={Info}
+        options={{
+          title: 'Thông tin',
+          unmountOnBlur: true,
+          drawerItemStyle: { display: 'none' },
+        }}
+      >
+        {/* {() => <Room navigation={navigation} />} */}
       </Drawer.Screen>
     </Drawer.Navigator>
   );

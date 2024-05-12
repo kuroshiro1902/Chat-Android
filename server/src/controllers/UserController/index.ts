@@ -7,6 +7,24 @@ import userService from '../../services/user.service';
 import apiService from '../../services/api.service';
 
 class UserController {
+  async getUserById(req: ApiRequest, res: ApiResponse) {
+    try {
+      // @ts-ignore
+      const { id } = req.user;
+      const userId = req.params.userId;
+      if (!userId) {
+        return res.status(EStatusCode.INVALID_INPUT).json({ isSuccess: false, message: 'User id phải là 1 số.' });
+      }
+      const user = await userService.findById(userId);
+      if (!user) {
+        return res.status(EStatusCode.NOT_FOUND).json({ isSuccess: false, message: 'Không tìm thấy user.' });
+      }
+      return res.status(EStatusCode.SUCCESS).json({ isSuccess: true, data: UserDTO(user) });
+    } catch (error) {
+      console.error(error);
+      serverError(res);
+    }
+  }
   async getFriendsOfUser(req: ApiRequest, res: ApiResponse) {
     try {
       // @ts-ignore

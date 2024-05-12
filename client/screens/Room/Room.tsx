@@ -18,6 +18,7 @@ import { SocketContext, SocketHandler } from '../../contexts/Socket';
 import { IResponse } from '../../models/response.model';
 import SelectedMessageForm from './SelectedMessageForm';
 import Overlay from '../../components/Overlay';
+import Menu from './Menu';
 
 const pageSize = 20;
 
@@ -29,6 +30,7 @@ function Room({ navigation }: any) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [messageInputValue, setMessageInputValue] = useState('');
+  const [isShowMenu, setIsShowMenu] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<IMessage | null>(null);
   const messageListCtnRef = useRef<any>();
 
@@ -145,6 +147,11 @@ function Room({ navigation }: any) {
           />
         </Overlay>
       ) : undefined}
+      {isShowMenu ? (
+        <Overlay handleClose={() => setIsShowMenu(false)}>
+          <Menu userId={receiverId} />
+        </Overlay>
+      ) : undefined}
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerMain}>
@@ -169,7 +176,12 @@ function Room({ navigation }: any) {
             </View>
             <Text style={styles.roomName}>{name}</Text>
           </View>
-          <TouchableOpacity style={styles.headerMain}>
+          <TouchableOpacity
+            style={styles.headerMain}
+            onPress={() => {
+              setIsShowMenu(true);
+            }}
+          >
             <Text>
               <SimpleLineIcons name="options-vertical" size={20} color={'#ffffff'} />
             </Text>

@@ -43,7 +43,15 @@ function Home({ navigation }: any) {
       <BackGroundImage />
       <View style={{ position: 'relative' }}>
         <Text style={styles.title}>
-          Xin chào, <Text style={styles.name}>{user?.name}</Text>
+          Xin chào,{' '}
+          <Text
+            onPress={() => {
+              navigation.navigate('Self');
+            }}
+            style={styles.name}
+          >
+            {user?.name}
+          </Text>
         </Text>
         <Text style={{ paddingLeft: 4, marginBottom: -8 }}>Bạn bè ({friends?.length})</Text>
         <FlatList

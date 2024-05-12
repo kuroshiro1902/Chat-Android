@@ -56,7 +56,7 @@ class AuthController {
         username,
         password: hashedPassword,
         name,
-        friendIds: [],
+        // friendIds: [],
       };
       const savedUser = await userService.createUser(user);
       if (!savedUser) {
