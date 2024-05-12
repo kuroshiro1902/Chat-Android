@@ -38,11 +38,16 @@ class MessageService extends Service {
     options?: IPagination,
     fieldOptions?: Partial<IMessage>,
   ): Promise<IMessage[]> {
-    const pageIndex = options?.pageIndex ?? 1;
+    const _pageIndex = options?.pageIndex ?? 1;
+    const pageIndex = _pageIndex > 0 ? _pageIndex - 1 : 0;
     const perPage = options?.perPage ?? 20;
     const sortBy = options?.sortBy ?? 'id';
     const order = options?.order ?? 'desc';
     console.log({ pageIndex, perPage, sortBy, order });
+
+    // Thay đổi cách tính toán offset
+    const offset = pageIndex * perPage;
+
     const messages = await this.query<IMessage>(
       `
       SELECT *
@@ -57,13 +62,17 @@ class MessageService extends Service {
       ORDER BY ${sortBy} ${order}
       OFFSET $3 LIMIT $4;      
       `,
-      [+senderId, +receiverId, +pageIndex - 1, +perPage],
+      [+senderId, +receiverId, offset, +perPage],
     );
+
+    // Kiểm tra nếu không có messages hoặc messages.length === 0
     if (!messages || messages.length === 0) {
       return [];
     }
+
     return messages.map((m) => transform(m)!);
   }
+
   async sendMessage(message: { senderId: number; receiverId?: number; content?: string }) {
     const { senderId, receiverId, content } = message;
     const validatedContent = this.validateContent(content);

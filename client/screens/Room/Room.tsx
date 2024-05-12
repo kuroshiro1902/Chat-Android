@@ -19,6 +19,7 @@ import { IResponse } from '../../models/response.model';
 import SelectedMessageForm from './SelectedMessageForm';
 import Overlay from '../../components/Overlay';
 import Menu from './Menu';
+import { IPagination } from '../../models/pagination.model';
 
 const pageSize = 20;
 
@@ -62,29 +63,31 @@ function Room({ navigation }: any) {
     client?.emit('delete-message', message);
   }, []);
 
-  const getMessages = useCallback(
-    async (pageIndex?: number) => {
-      try {
-        const { data } = await api.post<{ data: IMessage[] }>('/messages/get-messages', {
-          receiverId,
-          options: { pageIndex },
-        });
-        return data.data.reverse();
-      } catch (error: any) {
-        console.log('Error getting messages:', error?.message);
-        return [];
+  const getMessages = useCallback(async () => {
+    try {
+      const body: { receiverId: number; options: IPagination } = {
+        receiverId,
+        options: { pageIndex },
+      };
+      const res = await api.post<{ data: IMessage[] }>('/messages/get-messages', body);
+      const { data } = res.data;
+      if (data.length === 0) {
+        setHasNextPage(false);
       }
-    },
-    [receiverId],
-  );
+      setPageIndex((prev) => prev + 1);
+      return data.reverse();
+    } catch (error: any) {
+      console.log('Error getting messages:', error?.message);
+      return [];
+    }
+  }, [receiverId, pageIndex]);
 
   const handleLoadMore = useCallback(async () => {
-    const _pageIndex = pageIndex + 1;
-    const messages = await getMessages(_pageIndex);
-    if (messages.length) {
-      console.log('Tạm dừng lại để chuyển đổi database');
-    } // Tạm dừng lại để chuyển đổi database
-  }, []);
+    setIsLoadingMore((_) => true);
+    const additionMessages = await getMessages();
+    setMessages((prev) => [...additionMessages, ...prev]);
+    return setIsLoadingMore((_) => false);
+  }, [receiverId, pageIndex]);
 
   useEffect(() => {
     SocketHandler.receiveMessage = (message) => {
@@ -118,8 +121,6 @@ function Room({ navigation }: any) {
     setIsLoading(true);
     getMessages()
       .then((messages) => {
-        console.log({ messages });
-
         setMessages(messages);
       })
       .finally(() => {
@@ -210,10 +211,11 @@ function Room({ navigation }: any) {
                       <Image style={{ height: 32, width: 32 }} source={require('../../assets/loading.gif')}></Image>
                     ) : (
                       <Button
+                        disabled={!hasNextPage}
                         color={color.blue}
                         title="Xem thêm"
                         onPress={(e) => {
-                          setIsLoadingMore(true);
+                          handleLoadMore();
                         }}
                       />
                     )}

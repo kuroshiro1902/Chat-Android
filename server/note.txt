@@ -1,3 +1,8 @@
-- làm chức năng load more
-- làm chức năng thêm bạn bè
-- làm chức năng tìm kiếm
+- Làm chức năng load more -- done
+- Làm chức năng upload ảnh
+- Tại trang info của một user:
+ + Nếu người đó là bạn bè:
+    > Thêm nút nhắn tin
+    > Thêm nút xóa bạn
+ + Nếu người đó chưa là bạn bè:
+    > Thêm nút kết bạn
