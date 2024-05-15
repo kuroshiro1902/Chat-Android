@@ -7,13 +7,17 @@ import formatDate from '../../utils/formatDate.util';
 import { IMenuItem } from '../../models/menu-item.model';
 import { useMemo } from 'react';
 
-const _infoMenuItem = (timestamp: number): IMenuItem => {
+const _infoMenuItem = (initTimestamp: number): IMenuItem => {
   return {
     label: 'Thông tin',
     command: (timestamp: number) => {
-      Alert.alert('Thông tin', `Thời gian gửi: ${formatDate(new Date(timestamp))}`, [
-        { text: 'OK', onPress: () => {} },
-      ]);
+      if (Platform.OS === 'web') {
+        window.alert(`THÔNG TIN: \nThời gian gửi: ${formatDate(new Date((timestamp ?? initTimestamp) * 1000))}`);
+      } else {
+        Alert.alert('Thông tin', `Thời gian gửi: ${formatDate(new Date((timestamp ?? initTimestamp) * 1000))}`, [
+          { text: 'OK', onPress: () => {} },
+        ]);
+      }
     },
   };
 };
