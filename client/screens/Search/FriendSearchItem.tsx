@@ -3,6 +3,7 @@ import { TouchableOpacity, View } from 'react-native';
 import { IUser } from '../../models/user.model';
 import { color, theme } from '../../theme';
 import { useNavigation } from '@react-navigation/native';
+import { colorish } from '../../utils/colorish.util';
 
 interface props {
   item: IUser;
@@ -33,7 +34,7 @@ function FriendSearchItem({ item }: props) {
 const styles = StyleSheet.create({
   block: {
     height: 68,
-    backgroundColor: '#ffffff',
+    backgroundColor: colorish(color.white),
     padding: 8,
     gap: 8,
     display: 'flex',

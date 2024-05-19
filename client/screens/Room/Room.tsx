@@ -20,6 +20,7 @@ import SelectedMessageForm from './SelectedMessageForm';
 import Overlay from '../../components/Overlay';
 import Menu from './Menu';
 import { IPagination } from '../../models/pagination.model';
+import BackGroundImage from '../../components/BackgroundImage';
 
 const pageSize = 20;
 
@@ -154,6 +155,7 @@ function Room({ navigation }: any) {
         </Overlay>
       ) : undefined}
       <View style={styles.container}>
+        <BackGroundImage />
         <View style={styles.header}>
           <View style={styles.headerMain}>
             <TouchableOpacity

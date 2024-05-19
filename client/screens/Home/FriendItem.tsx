@@ -8,6 +8,7 @@ import { UserContext } from '../../contexts/User';
 import { useNavigation } from '@react-navigation/native';
 import { IUser } from '../../models/user.model';
 import { SocketHandler } from '../../contexts/Socket';
+import { colorish } from '../../utils/colorish.util';
 let renderCount = 0;
 
 interface props {
@@ -95,7 +96,7 @@ const FriendItem = ({ item }: props) => {
 const styles = StyleSheet.create({
   block: {
     height: 68,
-    backgroundColor: '#ffffff',
+    backgroundColor: colorish(color.white),
     padding: 8,
     gap: 8,
     display: 'flex',

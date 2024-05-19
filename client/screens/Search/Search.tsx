@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 4,
     backgroundColor: '#ffffff',
     // @ts-ignore
-    outlineStyle: 'none',
+    // outlineStyle: 'none',
   },
   submitBtn: {
     maxWidth: 60,

@@ -1,4 +1,4 @@
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { color, theme } from '../theme';
 import { useCallback, useContext, useEffect, useState } from 'react';

@@ -74,7 +74,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     fontSize: 18,
     // @ts-ignore
-    outlineStyle: 'none',
+    // outlineStyle: 'none',
     borderColor: color.gray,
   },
   messageSubmitBtn: {
