@@ -112,6 +112,22 @@ class MessageService extends Service {
     return transform(data);
   }
 
+  async deleteAllMessages(selfId: number, friendId: number) {
+    const data = await this.query<IMessage>(
+      `
+        UPDATE messages SET isDeleted = $1
+        WHERE (senderid = $2 AND receiverid = $3)
+        OR (receiverid = $2 AND senderid = $3)
+        AND isDeleted != $1
+        ;
+      `,
+      [true, +selfId, +friendId],
+    );
+    console.log({ data });
+
+    return data.map((m) => transform(m));
+  }
+
   async updateMessagesToRead(senderId: number, receiverId: number) {
     const messages = await this.query<IMessage>(
       `

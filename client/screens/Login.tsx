@@ -1,9 +1,6 @@
 import { Alert, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { color, theme } from '../theme';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import axios from 'axios';
-import { server } from '../environments';
 import Loading from '../components/Loading';
 import api, { getToken, saveToken, saveUser } from '../api';
 import { IResponse } from '../models/response.model';
@@ -100,16 +97,14 @@ function Login({ navigation, logout }: any) {
           placeholder="Mật khẩu"
           value={password}
           onChangeText={setPassword}
-          onKeyPress={(e: any) => {
-            if (e.keyCode === 13) {
-              if (username.length < 6) {
-                return setError('Tên đăng nhập quá ngắn.');
-              }
-              if (e.target.value?.length < 6) {
-                return setError('Mật khẩu quá ngắn');
-              }
-              return submit();
+          onSubmitEditing={(e: any) => {
+            if (username.length < 6) {
+              return setError('Tên đăng nhập quá ngắn.');
             }
+            if (e.target.value?.length < 6) {
+              return setError('Mật khẩu quá ngắn');
+            }
+            return submit();
           }}
           secureTextEntry={true}
         />

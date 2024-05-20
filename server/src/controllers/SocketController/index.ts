@@ -78,6 +78,17 @@ class SocketController {
       senderSocket?.emit(ESocketEvents.SEND_MESSAGE_FAIL, 'Gửi tin nhắn lỗi');
     }
   }
+  async deleteAllMessages(params: { selfId: number; friendId: number }) {
+    const { selfId, friendId } = params;
+    const selfSocket = this.get(selfId);
+    const friendSocket = this.get(friendId);
+    friendSocket?.emit(ESocketEvents.NEWEST_MESSAGE, {
+      content: 'Người này đã xóa cuộc trò chuyện.',
+      senderId: selfId,
+    });
+    selfSocket?.emit(ESocketEvents.NEWEST_MESSAGE, { content: '' });
+  }
+
   async deleteMessage(message: IMessage) {
     if (message?.id) {
       const res = await messageService.deleteMessage(message.id);
@@ -132,6 +143,9 @@ class SocketController {
     });
     socket.on('delete-message', (message: IMessage) => {
       this.deleteMessage(message);
+    });
+    socket.on('delete-all-messages', (params: { selfId: number; friendId: number }) => {
+      this.deleteAllMessages(params);
     });
   }
 

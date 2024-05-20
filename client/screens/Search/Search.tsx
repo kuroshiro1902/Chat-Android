@@ -54,11 +54,8 @@ function Search({ navigation }: any) {
             maxLength={30}
             value={searchValue}
             onChangeText={setSearchValue}
-            onKeyPress={(e) => {
-              // @ts-ignore
-              if (e.keyCode === 13) {
-                handleSearch(searchValue);
-              }
+            onSubmitEditing={() => {
+              handleSearch(searchValue);
             }}
             placeholder="Tìm kiếm"
             style={styles.input}

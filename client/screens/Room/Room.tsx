@@ -62,7 +62,14 @@ function Room({ navigation }: any) {
 
   const handleDeleteMessage = useCallback(async (message: IMessage) => {
     client?.emit('delete-message', message);
+    setSelectedMessage(null);
   }, []);
+
+  const handleDeleteAllMessages = useCallback(async () => {
+    api.delete<{ data?: IMessage[] }>(`messages/all/${receiverId}`).then(({ data }) => {
+      client?.emit('delete-all-messages', { selfId: user?.id, friendId: receiverId });
+    });
+  }, [receiverId]);
 
   const getMessages = useCallback(async () => {
     try {
@@ -151,7 +158,7 @@ function Room({ navigation }: any) {
       ) : undefined}
       {isShowMenu ? (
         <Overlay handleClose={() => setIsShowMenu(false)}>
-          <Menu userId={receiverId} />
+          <Menu userId={receiverId} handleDeleteAllMessages={handleDeleteAllMessages} />
         </Overlay>
       ) : undefined}
       <View style={styles.container}>
@@ -177,9 +184,13 @@ function Room({ navigation }: any) {
             <View style={theme.avatar}>
               <Image style={{ width: '100%', height: '100%' }} source={require('../../assets/logo/user.png')}></Image>
             </View>
-            <Text style={styles.roomName}>{name}</Text>
+            <View style={{ ...theme.avatar, flexDirection: 'row' }}>
+              <Image style={{ width: 44, height: 44 }} source={require('../../assets/logo/user.png')}></Image>
+              <Text style={styles.roomName}>{name}</Text>
+            </View>
           </View>
           <TouchableOpacity
+            id="room-menu"
             style={styles.headerMain}
             onPress={() => {
               setIsShowMenu(true);

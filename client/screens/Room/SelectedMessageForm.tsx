@@ -1,4 +1,6 @@
 import { Platform, Pressable, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import FeatherIcon from 'react-native-vector-icons/Feather';
 import { View } from 'react-native';
 import { color, theme } from '../../theme';
 import { IMessage } from '../../models/message.model';
@@ -10,6 +12,7 @@ import { useMemo } from 'react';
 const _infoMenuItem = (initTimestamp: number): IMenuItem => {
   return {
     label: 'Thông tin',
+    icon: <FeatherIcon name="info" size={16} />,
     command: (timestamp: number) => {
       if (Platform.OS === 'web') {
         window.alert(`THÔNG TIN: \nThời gian gửi: ${formatDate(new Date((timestamp ?? initTimestamp) * 1000))}`);
@@ -36,6 +39,7 @@ function SelectedMessageForm({
       return [
         {
           label: 'Xóa',
+          icon: <AntDesignIcon name="delete" size={16} />,
           style: { color: '#ff0000' },
           command: () => {
             if (Platform.OS === 'web') {
@@ -51,7 +55,11 @@ function SelectedMessageForm({
             }
           },
         },
-        { label: 'Sửa', command: () => {} },
+        {
+          label: 'Sửa',
+          icon: <FeatherIcon name="edit-2" size={16} />,
+          command: () => {},
+        },
         _infoMenuItem(message.sendTimestamp),
       ];
     } else {
@@ -62,7 +70,9 @@ function SelectedMessageForm({
     <View style={styles.container} id="selected-message-form">
       {options.map((o, i) => (
         <TouchableOpacity key={i} style={styles.button} onPress={() => o.command?.(message.sendTimestamp)}>
-          <Text style={{ ...styles.text, ...o.style }}>{o.label}</Text>
+          <Text style={{ ...styles.text, ...o.style }}>
+            {o.icon} {o.label}
+          </Text>
         </TouchableOpacity>
       ))}
     </View>

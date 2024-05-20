@@ -1,5 +1,7 @@
 Real time:
 - Gửi tin nhắn
 - Xóa tin nhắn
+- Xóa toàn bộ tin nhắn
+- Kết bạn
 - Hiển thị tin nhắn mới nhất
 - Thông báo tin nhắn chưa đọc

@@ -68,6 +68,26 @@ class MessageController {
     }
   }
 
+  async deleteAllMessages(req: ApiRequest, res: ApiResponse) {
+    try {
+      // @ts-ignore
+      const { id: selfId } = req.user;
+      // @ts-ignore
+      const friendId = +(req.params.friendId as string);
+      if (!friendId) {
+        return res.status(EStatusCode.INVALID_INPUT).json({ isSuccess: false, message: 'Không có id của bạn bè!' });
+      }
+      const messages = await messageService.deleteAllMessages(selfId, friendId);
+      if (!messages) {
+        return res.status(EStatusCode.NOT_FOUND).json({ isSuccess: false, message: 'Tin nhắn không tồn tại.' });
+      }
+      return res.status(EStatusCode.SUCCESS).json({ isSuccess: true, data: messages });
+    } catch (error) {
+      console.error(error);
+      serverError(res);
+    }
+  }
+
   async hasReadMessage(req: ApiRequest, res: ApiResponse) {
     // Đã đọc message của ai gửi tới
     try {
