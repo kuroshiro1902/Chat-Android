@@ -40,6 +40,8 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    borderBottomColor: color.lightGray,
+    borderBottomWidth: 1,
   },
   friendName: {
     fontWeight: '500',

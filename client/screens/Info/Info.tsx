@@ -7,6 +7,9 @@ import { UserContext } from '../../contexts/User';
 import { IUser } from '../../models/user.model';
 import Loading from '../../components/Loading';
 import api from '../../api';
+import IonIcon from 'react-native-vector-icons/Ionicons';
+import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 function Info({ navigation }: any) {
   const { userId } = useRoute().params as { userId: number };
@@ -49,16 +52,41 @@ function Info({ navigation }: any) {
       <BackGroundImage />
       <View style={styles.container}>
         <View style={styles.header}>
-          <View style={styles.coverImgCtn}></View>
+          <View id="cover-image-ctn" style={styles.coverImgCtn}>
+            <Image
+              source={require('../../assets/userwallpaper.jpg')}
+              style={{ width: '100%', resizeMode: 'cover', opacity: 0.8 }}
+            />
+          </View>
           <View style={styles.avatarImgCtn}>
             <Image style={{ width: '100%', height: '100%' }} source={require('../../assets/logo/user.png')}></Image>
           </View>
+          {isFriendWithUser ? (
+            <>
+              <View id="message-btn" style={{ ...styles.roundBtn, ...styles.message }}>
+                <TouchableOpacity>
+                  <AntDesignIcon name="message1" size={24} color={color.white} />
+                </TouchableOpacity>
+              </View>
+              <View id="delete-btn" style={{ ...styles.roundBtn, ...styles.delete }}>
+                <TouchableOpacity>
+                  <AntDesignIcon name="deleteuser" size={24} color={color.white} />
+                </TouchableOpacity>
+              </View>
+            </>
+          ) : (
+            <View id="add-btn" style={{ ...styles.roundBtn, ...styles.add }}>
+              <TouchableOpacity>
+                <IonIcon name="person-add" size={24} color={color.white} />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
         <View style={styles.main}>
           <Text style={styles.name}>{user.name}</Text>
           <Text style={styles.quote}>{'Do something big!'}</Text>
           <Text style={styles.description}>
-            {isFriendWithUser ? 'Các bạn đã là bạn bè của nhau.' : 'Chưa phải là bạn bè, kết bạn ngay!'}
+            {isFriendWithUser ? 'Các bạn đã là bạn bè của nhau.' : 'Các bạn chưa phải là bạn bè, kết bạn ngay!'}
           </Text>
         </View>
       </View>
@@ -78,6 +106,9 @@ const styles = StyleSheet.create({
   coverImgCtn: {
     backgroundColor: color.green,
     height: coverImgHeight,
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
   },
   avatarImgCtn: {
     position: 'absolute',
@@ -89,6 +120,38 @@ const styles = StyleSheet.create({
     backgroundColor: '#fafafa',
     borderColor: color.white,
     borderWidth: 4,
+  },
+  roundBtn: {
+    borderRadius: 40 / 2,
+    height: 40,
+    width: 40,
+    backgroundColor: '#fafafa',
+    borderColor: color.white,
+    borderWidth: 4,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  add: {
+    position: 'absolute',
+    bottom: coverImgHeight / 2 - 40 / 2,
+    backgroundColor: color.blue,
+    right: 20,
+    borderWidth: 2,
+  },
+  message: {
+    position: 'absolute',
+    bottom: coverImgHeight / 2 - 40 / 2,
+    backgroundColor: color.blue,
+    right: 40 + 20 * 2 - 20 / 2,
+    borderWidth: 2,
+  },
+  delete: {
+    position: 'absolute',
+    bottom: coverImgHeight / 2 - 40 / 2,
+    backgroundColor: color.crimson,
+    right: 20,
+    borderWidth: 2,
   },
   main: {
     paddingHorizontal: 20,

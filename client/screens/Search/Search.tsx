@@ -45,7 +45,7 @@ function Search({ navigation }: any) {
       {isLoading ? <Loading /> : undefined}
       <BackGroundImage />
       <View style={styles.container} id="Search-container">
-        <Text style={{ paddingBottom: 4, marginBottom: 4 }}>
+        <Text style={{ paddingBottom: 4, marginBottom: 4, color: color.darkGreen }}>
           <FontAwesome5 name="user-friends" style={{ marginRight: 4 }} />
           Tìm kiếm những người bạn quen biết.
         </Text>
@@ -65,7 +65,7 @@ function Search({ navigation }: any) {
           </TouchableOpacity>
         </View>
         <View>
-          <Text>{message}</Text>
+          <Text style={styles.warn}>{message}</Text>
         </View>
         <View>
           <FlatList
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 4,
     backgroundColor: '#ffffff',
     // @ts-ignore
-    // outlineStyle: 'none',
+    outlineStyle: 'none',
   },
   submitBtn: {
     maxWidth: 60,
@@ -120,6 +120,7 @@ const styles = StyleSheet.create({
     height: '100%',
     paddingHorizontal: 4,
   },
+  warn: {},
 });
 
 export default Search;

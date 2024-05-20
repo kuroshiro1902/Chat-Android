@@ -3,5 +3,6 @@ Real time:
 - Xóa tin nhắn
 - Xóa toàn bộ tin nhắn
 - Kết bạn
+- Trang home: Thêm nút nổi dưới phải để kết bạn
 - Hiển thị tin nhắn mới nhất
 - Thông báo tin nhắn chưa đọc

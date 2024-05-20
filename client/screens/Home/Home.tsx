@@ -7,6 +7,7 @@ import { IUser } from '../../models/user.model';
 import api from '../../api';
 import FriendItem from './FriendItem';
 import BackGroundImage from '../../components/BackgroundImage';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 function Home({ navigation }: any) {
   const [isLoading, setIsLoading] = useState(false);
@@ -42,17 +43,18 @@ function Home({ navigation }: any) {
       {isLoading ? <Loading /> : undefined}
       <BackGroundImage />
       <View style={{ position: 'relative' }}>
-        <Text style={styles.title}>
-          Xin chào,{' '}
-          <Text
+        <View style={styles.title}>
+          <View style={styles.avatarCtn}>
+            <Image style={{ width: 36, height: 36 }} source={require('../../assets/logo/user.png')}></Image>
+          </View>
+          <TouchableOpacity
             onPress={() => {
               navigation.navigate('Self');
             }}
-            style={styles.name}
           >
-            {user?.name}
-          </Text>
-        </Text>
+            <Text style={styles.name}>{user?.name}</Text>
+          </TouchableOpacity>
+        </View>
         <Text style={{ paddingLeft: 4, marginBottom: -8 }}>Bạn bè ({friends?.length})</Text>
         <FlatList
           data={friends}
@@ -84,11 +86,24 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   title: {
-    textAlign: 'right',
-    fontSize: 18,
     padding: 8,
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 4,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  avatarCtn: {
+    height: 40,
+    width: 40,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
+    backgroundColor: color.orange,
   },
   name: {
+    fontSize: 18,
     fontWeight: 'bold',
     color: color.blue,
   },

@@ -19,7 +19,7 @@ function BackGroundImage() {
       <Image
         style={{
           // ...StyleSheet.absoluteFillObject,
-          resizeMode: 'cover', // Đảm bảo ảnh nền được phủ toàn bộ phần nền
+          resizeMode: 'cover',
           // position: 'absolute',
           // left: 0,
           // bottom: 0,

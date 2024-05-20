@@ -184,10 +184,15 @@ function Room({ navigation }: any) {
             <View style={theme.avatar}>
               <Image style={{ width: '100%', height: '100%' }} source={require('../../assets/logo/user.png')}></Image>
             </View>
-            <View style={{ ...theme.avatar, flexDirection: 'row' }}>
+            <TouchableOpacity
+              style={{ ...theme.avatar, flexDirection: 'row' }}
+              onPress={() => {
+                navigation.navigate('Info', { userId: receiverId });
+              }}
+            >
               <Image style={{ width: 44, height: 44 }} source={require('../../assets/logo/user.png')}></Image>
               <Text style={styles.roomName}>{name}</Text>
-            </View>
+            </TouchableOpacity>
           </View>
           <TouchableOpacity
             id="room-menu"
