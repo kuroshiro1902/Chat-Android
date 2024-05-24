@@ -14,7 +14,6 @@ import { IMessage } from '../../models/message.model';
 import api from '../../api';
 import Loading from '../../components/Loading';
 import { SocketContext, SocketHandler } from '../../contexts/Socket';
-import { IResponse } from '../../models/response.model';
 import SelectedMessageForm from './SelectedMessageForm';
 import Overlay from '../../components/Overlay';
 import Menu from './Menu';
@@ -23,10 +22,8 @@ import BackGroundImage from '../../components/BackgroundImage';
 import ImageUpload from '../../components/ImageUpload';
 import { adjustDimension } from '../../utils/adjustDimension.util';
 
-const pageSize = 20;
-
 function Room({ navigation }: any) {
-  const { user, setIsNotReadMessageOfFriendIds } = useContext(UserContext);
+  const { user, setNewestMessage } = useContext(UserContext);
   const { client } = useContext(SocketContext);
   const params = useRoute().params as IRoomInput;
   const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +47,7 @@ function Room({ navigation }: any) {
     api.update<{ data?: IMessage[] }>(`messages/read-messages/${senderId}`).then(({ data }) => {
       const message = data.data?.[0];
       if (message) {
-        setIsNotReadMessageOfFriendIds((prev) => ({ ...prev, [message.senderId]: false }));
+        setNewestMessage((prev) => ({ ...prev, [message.senderId]: message, [message.receiverId]: message }));
       }
     });
   }, []);
@@ -80,6 +77,8 @@ function Room({ navigation }: any) {
     api.delete<{ data?: IMessage[] }>(`messages/all/${receiverId}`).then(({ data }) => {
       client?.emit('delete-all-messages', { selfId: user?.id, friendId: receiverId });
     });
+    setNewestMessage((prev) => ({ ...prev, [receiverId]: undefined }));
+    navigation.navigate('Home');
   }, [receiverId]);
 
   const getMessages = useCallback(async () => {
@@ -129,9 +128,6 @@ function Room({ navigation }: any) {
     };
 
     return () => {
-      SocketHandler.receiveMessage = (message) => {
-        setIsNotReadMessageOfFriendIds((prev) => ({ ...prev, [message.senderId]: true }));
-      };
       SocketHandler.deleteMessage = () => {};
     };
   }, [receiverId]);

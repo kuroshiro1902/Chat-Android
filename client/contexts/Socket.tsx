@@ -18,7 +18,7 @@ export interface SocketData {
 }
 export const SocketContext = createContext<SocketData>({} as SocketData);
 function SocketProvider({ children, navigation }: any) {
-  const { user, setUser, setOnlineFriendIds, setIsNotReadMessageOfFriendIds, refetchFriends } = useContext(UserContext);
+  const { user, setUser, setOnlineFriendIds, refetchFriends, setNewestMessage } = useContext(UserContext);
   const [client, setClient] = useState<Socket | null>(null);
 
   const initEventListeners = useCallback((client: Socket) => {
@@ -31,9 +31,6 @@ function SocketProvider({ children, navigation }: any) {
     client.on('unauthorized', () => {
       console.log('Token không hợp lệ.'); // TEST
     });
-    SocketHandler.receiveMessage = (message) => {
-      setIsNotReadMessageOfFriendIds((prev) => ({ ...prev, [message.senderId]: true }));
-    };
     const chatEvents: { [key: string]: (...args: any[]) => void } = {
       'get-online-friends': (data: IUser[]) => {
         console.log('online friends:', data);
@@ -50,9 +47,8 @@ function SocketProvider({ children, navigation }: any) {
         SocketHandler.deleteMessage?.(messageId);
       },
       'newest-message': (data: IMessage) => {
-        console.log('newest message: ', data);
-
-        SocketHandler.newestMessage(data);
+        // SocketHandler.newestMessage(data);
+        setNewestMessage((prev) => ({ ...prev, [data.receiverId]: data, [data.senderId]: data }));
       },
       'refetch-friends': () => {
         refetchFriends();

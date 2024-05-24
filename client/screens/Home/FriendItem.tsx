@@ -18,45 +18,12 @@ const FriendItem = ({ item }: props) => {
   console.log('rerender friend item', renderCount++, 'time');
 
   const navigation: any = useNavigation();
-  const { user, onlineFriendIds, isNotReadMessageOfFriendIds, setIsNotReadMessageOfFriendIds } =
-    useContext(UserContext);
+  const { user, onlineFriendIds, newestMessages } = useContext(UserContext);
   const roomInput: IRoomInput = { receiverId: item.id, name: item.name };
-  const [message, setMessage] = useState<IMessage | null>(null);
+  const message = newestMessages[item.id];
+  const isReceiverNotRead = message?.receiverId === user?.id && !message?.isRead;
 
-  const getMessages = useCallback(
-    async (options?: any) => {
-      const { data } = await api.post<{ data: IMessage[] }>('/messages/get-messages', {
-        receiverId: item.id,
-        options,
-      });
-
-      const newestMessage = data.data.reverse().pop() || null;
-
-      if (newestMessage) {
-        const messageType = newestMessage.content.includes('res.cloudinary.com') ? 'image' : 'text';
-        if (messageType === 'image') {
-          setMessage({ ...newestMessage, content: '[Ảnh]' });
-        } else {
-          setMessage((_) => newestMessage);
-        }
-        if (newestMessage.senderId === item.id && !newestMessage.isRead) {
-          setIsNotReadMessageOfFriendIds((prev) => ({ ...prev, [newestMessage.senderId]: true }));
-        }
-      }
-    },
-    [item?.id],
-  );
-
-  useEffect(() => {
-    SocketHandler.newestMessage = (message) => {
-      setMessage(message);
-    };
-    getMessages({ pageIndex: 1, perPage: 1, sortBy: 'sendTimestamp', order: 'desc' });
-    return () => {
-      setMessage(null);
-    };
-  }, [item?.id]);
-
+  console.log({ id: item.id, newestMessage: message }, { newestMessages });
   return (
     <TouchableOpacity
       onPress={() => {
@@ -75,8 +42,8 @@ const FriendItem = ({ item }: props) => {
               <Text
                 style={{
                   flex: 1,
-                  color: message && isNotReadMessageOfFriendIds[message?.senderId] ? color.darkGreen : color.darkGray,
-                  fontWeight: message && isNotReadMessageOfFriendIds[message?.senderId] ? '700' : '400',
+                  color: isReceiverNotRead ? color.darkGreen : color.darkGray,
+                  fontWeight: isReceiverNotRead ? '700' : '400',
                 }}
                 numberOfLines={1}
               >
@@ -86,7 +53,7 @@ const FriendItem = ({ item }: props) => {
           </View>
         </View>
         <View style={{ display: 'flex', height: '100%', flexDirection: 'column', justifyContent: 'center' }}>
-          {message && isNotReadMessageOfFriendIds[message?.senderId] ? (
+          {isReceiverNotRead ? (
             <Text
               style={{
                 backgroundColor: color.crimson,

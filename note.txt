@@ -9,3 +9,5 @@
 - Hiển thị tin nhắn mới nhất
 - Thông báo tin nhắn chưa đọc
 - Auto resize ảnh khi hiển thị để không bị vượt quá container
+- Thông báo đẩy
+- Cập nhật lại list bạn bè khi một người đồng ý kết bạn

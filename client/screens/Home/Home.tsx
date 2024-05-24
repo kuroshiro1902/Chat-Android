@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { FlatList, Image, ImageBackground, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { UserContext } from '../../contexts/User';
 import { color, theme } from '../../theme';
@@ -8,15 +8,40 @@ import api from '../../api';
 import FriendItem from './FriendItem';
 import BackGroundImage from '../../components/BackgroundImage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { IMessage } from '../../models/message.model';
 
 function Home({ navigation }: any) {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, friends, setFriends, setIsNotReadMessageOfFriendIds, refetchFriends } = useContext(UserContext);
+  const { user, friends, setFriends, setNewestMessage, refetchFriends } = useContext(UserContext);
+
+  const getNewestMessages = useCallback(
+    async (friendId: number, options?: any) => {
+      const { data } = await api.post<{ data: IMessage[] }>('/messages/get-messages', {
+        receiverId: friendId,
+        options,
+      });
+
+      const newestMessage = data.data.reverse().pop() || null;
+
+      if (newestMessage) {
+        const messageType = newestMessage.content.includes('res.cloudinary.com') ? 'image' : 'text';
+        if (messageType === 'image') {
+          setNewestMessage((prev) => ({ ...prev, [friendId]: { ...newestMessage, content: '[Ảnh]' } }));
+        } else {
+          setNewestMessage((prev) => ({ ...prev, [friendId]: { ...newestMessage } }));
+        }
+      }
+    },
+    [friends, user],
+  );
 
   useEffect(() => {
-    setIsNotReadMessageOfFriendIds((prev) => {
-      return friends.reduce((prev, friend) => ({ ...prev, [friend.id]: false }), {});
-    });
+    const _ = async () => {
+      for (const friend of friends) {
+        await getNewestMessages(friend.id, { pageIndex: 1, perPage: 1, sortBy: 'sendTimestamp', order: 'desc' });
+      }
+    };
+    _();
   }, [friends]);
 
   useEffect(() => {

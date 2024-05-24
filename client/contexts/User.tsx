@@ -3,6 +3,7 @@ import { IUser } from '../models/user.model';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../api';
 import { IFriendRequest } from '../models/friend-request.model';
+import { IMessage } from '../models/message.model';
 
 export interface UserData {
   user: IUser | null;
@@ -17,12 +18,12 @@ export interface UserData {
       [friendId: string]: boolean;
     }>
   >;
-  isNotReadMessageOfFriendIds: {
-    [friendId: string]: boolean | undefined;
+  newestMessages: {
+    [friendId: number]: IMessage | undefined;
   };
-  setIsNotReadMessageOfFriendIds: React.Dispatch<
+  setNewestMessage: React.Dispatch<
     React.SetStateAction<{
-      [friendId: string]: boolean | undefined;
+      [friendId: number]: IMessage | undefined;
     }>
   >;
   refetchFriends: () => void;
@@ -34,10 +35,10 @@ export const UserContext = createContext<UserData>({} as UserData);
 function UserProvider({ children }: any) {
   const [user, setUser] = useState<IUser | null>(null);
   const [friends, setFriends] = useState<IUser[]>([]);
-  const [onlineFriendIds, setOnlineFriendIds] = useState<{ [friendId: string]: boolean }>({});
+  const [onlineFriendIds, setOnlineFriendIds] = useState<{ [friendId: number]: boolean }>({});
   const [friendAcceptances, setFriendAcceptances] = useState<IFriendRequest[]>([]);
-  const [isNotReadMessageOfFriendIds, setIsNotReadMessageOfFriendIds] = useState<{
-    [friendId: string]: boolean | undefined;
+  const [newestMessages, setNewestMessage] = useState<{
+    [friendId: number]: IMessage | undefined;
   }>({});
 
   const refetchFriends = useCallback(() => {
@@ -81,8 +82,8 @@ function UserProvider({ children }: any) {
         friends,
         setOnlineFriendIds,
         setFriends,
-        isNotReadMessageOfFriendIds,
-        setIsNotReadMessageOfFriendIds,
+        newestMessages,
+        setNewestMessage,
         refetchFriends,
         friendAcceptances,
         setFriendAcceptances,
