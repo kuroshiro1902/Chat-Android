@@ -1,6 +1,6 @@
 export enum EStatusCode {
   SUCCESS = 200,
-  CREATED = 201,
+  CREATED = 200,
   INVALID_INPUT = 400,
   UNAUTHORIZED = 401,
   NOT_FOUND = 404,

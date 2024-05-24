@@ -74,6 +74,133 @@ class UserService extends Service {
 
     return users;
   }
+
+  async createFriendRequest(senderId: number, receiverId: number, content?: string) {
+    const sendTimestamp = +(new Date().getTime() / 1000).toFixed(0);
+    const friendReq = await this.queryOne<{
+      id: number;
+      senderid: number;
+      receiverid: number;
+      content: string;
+      sendtimestamp: number;
+    }>(
+      `
+      INSERT INTO friend_req (senderId, receiverId, content, sendTimestamp)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *;
+    `,
+      [+senderId, +receiverId, content ?? 'Gửi yêu cầu kết bạn từ trang cá nhân.', sendTimestamp],
+    );
+    if (!friendReq) return undefined;
+    const { id, senderid, receiverid, content: _content, sendtimestamp } = friendReq;
+    return {
+      id,
+      senderId: senderid,
+      receiverId: receiverid,
+      content: _content,
+      sendTimestamp: sendtimestamp,
+    };
+  }
+
+  async acceptFriendRequest(friendReqId: number, receiverId: number) {
+    const friendReq = await this.queryOne<{
+      id: number;
+      senderid: number;
+      receiverid: number;
+      content: string;
+      sendtimestamp: number;
+    }>(
+      `
+      SELECT * from friend_req 
+      WHERE id = $1
+      AND receiverid = $2
+      LIMIT 1;
+    `,
+      [+friendReqId, +receiverId],
+    );
+
+    if (!friendReq) return undefined;
+
+    await this.query(
+      `
+      DELETE from friend_req 
+      WHERE id = $1
+      AND receiverid = $2;
+    `,
+      [+friendReqId, +receiverId],
+    );
+
+    const { senderid, receiverid } = friendReq;
+
+    const friendRel = await this.queryOne(
+      `
+      INSERT INTO friend_rel (uid1, uid2)
+      VALUES ($1, $2)
+      RETURNING *;
+    `,
+      [+senderid, +receiverid],
+    );
+
+    const newFriend = await this.findById(senderid);
+
+    return newFriend;
+  }
+
+  async getFriendRequest(senderId: number, receiverId: number) {
+    const friendReq = await this.queryOne<{
+      id: number;
+      senderid: number;
+      receiverid: number;
+      content: string;
+      sendtimestamp: number;
+    }>(
+      `
+      SELECT * from friend_req 
+      WHERE senderid = $1
+      AND receiverid = $2
+      LIMIT 1;
+    `,
+      [+senderId, +receiverId],
+    );
+    if (!friendReq) return undefined;
+    const { id, senderid, receiverid, content, sendtimestamp } = friendReq;
+    return {
+      id,
+      senderId: senderid,
+      receiverId: receiverid,
+      content,
+      sendTimestamp: sendtimestamp,
+    };
+  }
+  async getAllAcceptances(userId: number) {
+    const friendReqs = await this.query<{
+      id: number;
+      senderid: number;
+      sendername: string;
+      receiverid: number;
+      content: string;
+      sendtimestamp: number;
+    }>(
+      `
+      SELECT fr.*, u.name as sendername from friend_req fr
+      LEFT JOIN users u ON fr.senderId = u.id
+      WHERE receiverid = $1;
+    `,
+      [+userId],
+    );
+
+    return friendReqs.map((friendReq) => {
+      const { id, senderid, receiverid, content, sendername, sendtimestamp } = friendReq;
+      return {
+        id,
+        senderId: senderid,
+        senderName: sendername,
+        receiverId: receiverid,
+        content,
+        sendTimestamp: sendtimestamp,
+      };
+    });
+  }
 }
 
 export default new UserService();

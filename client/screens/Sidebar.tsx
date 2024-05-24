@@ -8,6 +8,7 @@ import { removeToken, removeUser } from '../api';
 import Search from './Search/Search';
 import Info from './Info/Info';
 import Self from './Self/Self';
+import FriendAcceptance from './FriendAcceptance/FriendAcceptance';
 
 const Drawer = createDrawerNavigator();
 
@@ -34,6 +35,16 @@ function Sidebar({ navigation }: any) {
         }}
       >
         {/* {() => <Room navigation={navigation} />} */}
+      </Drawer.Screen>
+      <Drawer.Screen
+        name="Lời mời kết bạn"
+        options={{
+          // headerShown: false,
+          unmountOnBlur: true,
+          // drawerItemStyle: { display: 'none' },
+        }}
+      >
+        {() => <FriendAcceptance navigation={navigation} />}
       </Drawer.Screen>
       <Drawer.Screen
         name="Search"

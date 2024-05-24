@@ -1,8 +1,8 @@
-import { useRoute } from '@react-navigation/native';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { Alert, Image, Platform, StyleSheet, Text, View } from 'react-native';
 import { color } from '../../theme';
 import BackGroundImage from '../../components/BackgroundImage';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { UserContext } from '../../contexts/User';
 import { IUser } from '../../models/user.model';
 import Loading from '../../components/Loading';
@@ -10,12 +10,18 @@ import api from '../../api';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
+import { IFriendRequest } from '../../models/friend-request.model';
+import FriendAcceptanceButton from '../../components/FriendAcceptanceButton';
 
-function Info({ navigation }: any) {
+function Info() {
+  const navigation = useNavigation<any>();
+  const [isLoading, setIsLoading] = useState(true);
   const { userId } = useRoute().params as { userId: number };
   const { user: self, friends } = useContext(UserContext);
 
   const [user, setUser] = useState<IUser | null>(null);
+  const [friendRequest, setFriendRequest] = useState<IFriendRequest>();
 
   const isFriendWithUser = useMemo(() => {
     if (friends.findIndex((f) => f.id === userId) === -1) {
@@ -23,6 +29,45 @@ function Info({ navigation }: any) {
     }
     return true;
   }, [userId, friends]);
+
+  const handleAddFriend = useCallback(() => {
+    setIsLoading(true);
+    api
+      .post<{ isSuccess: boolean; data?: IFriendRequest }>('/users/add-friend/' + userId)
+      .then(({ data }) => {
+        const { isSuccess, data: friendRequest } = data;
+        if (isSuccess && friendRequest) {
+          setFriendRequest(friendRequest);
+        }
+      })
+      .catch((err) => {
+        setFriendRequest(undefined);
+        console.log(err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [userId]);
+
+  const handleAddFriendPress = () => {
+    if (Platform.OS === 'web') {
+      if (window.confirm(`Gửi lời mời kết bạn tới ${user?.name}?`)) {
+        return handleAddFriend();
+      }
+    }
+    if (Platform.OS === 'android') {
+      Alert.alert('', `Gửi lời mời kết bạn tới ${user?.name}?`, [
+        {
+          text: 'Đồng ý',
+          onPress: handleAddFriend,
+        },
+        {
+          text: 'Hủy',
+          onPress: () => {},
+        },
+      ]);
+    }
+  };
 
   useEffect(() => {
     const getUser = async () => {
@@ -37,7 +82,23 @@ function Info({ navigation }: any) {
         setUser({ id: 0, name: 'Not found' });
       }
     };
+    const getFriendRequest = async () => {
+      try {
+        const { data } = await api.get<{ isSuccess: boolean; data?: IFriendRequest }>(
+          '/users/friend-request/' + userId,
+        );
+        const { data: friendRequest, isSuccess } = data;
+        if (!isSuccess) {
+          throw new Error('Not found');
+        }
+        setFriendRequest(friendRequest);
+      } catch (error) {
+        setFriendRequest(undefined);
+      }
+    };
+
     getUser();
+    getFriendRequest();
     return () => {
       setUser(null);
     };
@@ -64,7 +125,7 @@ function Info({ navigation }: any) {
           {isFriendWithUser ? (
             <>
               <View id="message-btn" style={{ ...styles.roundBtn, ...styles.message }}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Room', { receiverId: userId, name: user.name })}>
                   <AntDesignIcon name="message1" size={24} color={color.white} />
                 </TouchableOpacity>
               </View>
@@ -74,9 +135,12 @@ function Info({ navigation }: any) {
                 </TouchableOpacity>
               </View>
             </>
+          ) : friendRequest ? (
+            <FriendAcceptanceButton item={{ ...friendRequest, senderName: user.name }} styles={styles.add} />
           ) : (
+            // Nếu chưa ai gửi lời mời kết bạn cho người kia
             <View id="add-btn" style={{ ...styles.roundBtn, ...styles.add }}>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={handleAddFriendPress}>
                 <IonIcon name="person-add" size={24} color={color.white} />
               </TouchableOpacity>
             </View>
@@ -86,7 +150,12 @@ function Info({ navigation }: any) {
           <Text style={styles.name}>{user.name}</Text>
           <Text style={styles.quote}>{'Do something big!'}</Text>
           <Text style={styles.description}>
-            {isFriendWithUser ? 'Các bạn đã là bạn bè của nhau.' : 'Các bạn chưa phải là bạn bè, kết bạn ngay!'}
+            {isFriendWithUser ? 'Các bạn đã là bạn bè của nhau.' : ''}
+            {!isFriendWithUser && friendRequest?.type === 'request' ? 'Bạn đã gửi lời mời kết bạn cho người này.' : ''}
+            {!isFriendWithUser && friendRequest?.type === 'acceptance'
+              ? 'Người này đã gửi lời mời kết bạn cho bạn.'
+              : ''}
+            {!isFriendWithUser && !friendRequest ? 'Các bạn chưa phải là bạn bè, kết bạn ngay!' : ''}
           </Text>
         </View>
       </View>

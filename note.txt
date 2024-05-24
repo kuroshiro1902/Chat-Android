@@ -1,8 +1,10 @@
-Real time:
-- Gửi tin nhắn
-- Xóa tin nhắn
-- Xóa toàn bộ tin nhắn
-- Kết bạn
+- Gửi tin nhắn -> done
+- Xóa tin nhắn -> done
+- Xóa toàn bộ tin nhắn -> done
+- upload ảnh -> done
+- Làm chức năng sửa description bản thân
+- Trang danh sách chờ -> done
+- Kết bạn --> Làm form cho nhập tin nhắn kết bạn -> Hiển thị ở trang danh sách chờ.
 - Trang home: Thêm nút nổi dưới phải để kết bạn
 - Hiển thị tin nhắn mới nhất
 - Thông báo tin nhắn chưa đọc

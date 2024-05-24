@@ -1,5 +1,7 @@
 Laptop phát wifi -> điện thoại kết nối đến.
 
+Sửa ip ở client trong environments.ts
+
 npx expo start --tunnel
 
 chuyển sang expo go: s

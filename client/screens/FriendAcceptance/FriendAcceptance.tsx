@@ -5,25 +5,22 @@ import { color, theme } from '../../theme';
 import Loading from '../../components/Loading';
 import { IUser } from '../../models/user.model';
 import api from '../../api';
-import FriendItem from './FriendItem';
+import FriendAcceptanceItem from './FriendAcceptanceItem';
 import BackGroundImage from '../../components/BackgroundImage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { IFriendRequest } from '../../models/friend-request.model';
+import Overlay from '../../components/Overlay';
 
-function Home({ navigation }: any) {
+function FriendAcceptance({ navigation }: any) {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, friends, setFriends, setIsNotReadMessageOfFriendIds, refetchFriends } = useContext(UserContext);
-
-  useEffect(() => {
-    setIsNotReadMessageOfFriendIds((prev) => {
-      return friends.reduce((prev, friend) => ({ ...prev, [friend.id]: false }), {});
-    });
-  }, [friends]);
+  const { user, setFriends, friendAcceptances, setFriendAcceptances, refetchFriendAcceptances } =
+    useContext(UserContext);
 
   useEffect(() => {
     if (!user) {
       return navigation.navigate('Login');
     }
-    refetchFriends();
+    refetchFriendAcceptances();
   }, [user]);
 
   return (
@@ -44,10 +41,10 @@ function Home({ navigation }: any) {
             <Text style={styles.name}>{user?.name}</Text>
           </TouchableOpacity>
         </View>
-        <Text style={{ paddingLeft: 4, marginBottom: -8 }}>Bạn bè ({friends?.length})</Text>
+        <Text style={{ paddingLeft: 4, marginBottom: -8 }}>Lời mời kết bạn({friendAcceptances?.length})</Text>
         <FlatList
-          data={friends}
-          renderItem={({ item }) => <FriendItem item={item} />}
+          data={friendAcceptances}
+          renderItem={({ item }) => <FriendAcceptanceItem item={item} />}
           keyExtractor={(_, i) => `${i}`}
           style={styles.mainCtn}
         />
@@ -119,4 +116,4 @@ const styles = StyleSheet.create({
   // },
 });
 
-export default Home;
+export default FriendAcceptance;
