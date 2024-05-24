@@ -3,6 +3,7 @@ import { IUser, IUserDTO } from '../../common/models/user.model';
 import userService from '../../services/user.service';
 import { IMessage, IMessageInput } from '../../common/models/message.model';
 import messageService from '../../services/message.service';
+import { IFriendRequest } from '../../common/models/friend-request.model';
 
 export enum ESocketEvents {
   ONLINE = 'online',
@@ -114,6 +115,22 @@ class SocketController {
       }
     }
   }
+
+  async acceptFriendRequest(friendRequest: IFriendRequest) {
+    const { senderId, receiverId } = friendRequest;
+    const senderSocket = this.get(senderId);
+    const receiverSocket = this.get(receiverId);
+    senderSocket?.emit('refetch-friends');
+    receiverSocket?.emit('refetch-friends');
+  }
+
+  async deleteFriend(userId: number, friendId: number) {
+    const senderSocket = this.get(userId);
+    const receiverSocket = this.get(friendId);
+    senderSocket?.emit('refetch-friends');
+    receiverSocket?.emit('refetch-friends');
+  }
+
   add(socket: Socket) {
     this.socketIds[socket.data.user.id] = socket.id;
     this.initEvents(socket);
@@ -146,6 +163,13 @@ class SocketController {
     });
     socket.on('delete-all-messages', (params: { selfId: number; friendId: number }) => {
       this.deleteAllMessages(params);
+    });
+    socket.on('accept-friend-request', (friendRequest: IFriendRequest) => {
+      this.acceptFriendRequest(friendRequest);
+      this.online(socket);
+    });
+    socket.on('delete-friend', (userId: number, friendId: number) => {
+      this.deleteFriend(userId, friendId);
     });
   }
 

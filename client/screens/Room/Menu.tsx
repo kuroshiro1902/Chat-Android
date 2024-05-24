@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { IMenuItem } from '../../models/menu-item.model';
 import { useNavigation } from '@react-navigation/native';
@@ -6,7 +6,8 @@ import { color } from '../../theme';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import api from '../../api';
-import { IMessage } from '../../models/message.model';
+import { SocketContext } from '../../contexts/Socket';
+import { UserContext } from '../../contexts/User';
 
 interface props {
   userId: number;
@@ -15,6 +16,14 @@ interface props {
 
 function Menu({ userId, handleDeleteAllMessages }: props) {
   const navigation: any = useNavigation();
+  const { user } = useContext(UserContext);
+  const { client } = useContext(SocketContext);
+  const handleDeleteFriend = async () => {
+    api.post('/users/delete-friend/' + userId).then(() => {
+      client?.emit('delete-friend', user?.id, userId);
+      navigation.navigate('Home');
+    });
+  };
   const options: IMenuItem[] = useMemo(() => {
     return [
       {
@@ -36,6 +45,23 @@ function Menu({ userId, handleDeleteAllMessages }: props) {
           } else {
             Alert.alert('Xóa cuộc trò chuyện', `Bạn có muốn xóa toàn bộ cuộc trò chuyện này không?`, [
               { text: 'OK', onPress: handleDeleteAllMessages },
+              { text: 'Cancel', onPress: () => {} },
+            ]);
+          }
+        },
+      },
+      {
+        label: 'Xóa bạn',
+        icon: <AntDesignIcon name="deleteuser" size={16} />,
+        style: { color: color.crimson, fontWeight: '600' },
+        command: () => {
+          if (Platform.OS === 'web') {
+            if (window.confirm('Bạn có muốn xóa người bạn này không?')) {
+              handleDeleteFriend();
+            }
+          } else {
+            Alert.alert('Xóa bạn bè', `Bạn có muốn xóa người bạn này không?`, [
+              { text: 'OK', onPress: handleDeleteFriend },
               { text: 'Cancel', onPress: () => {} },
             ]);
           }

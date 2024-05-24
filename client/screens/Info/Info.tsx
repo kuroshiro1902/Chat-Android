@@ -13,12 +13,14 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import { IFriendRequest } from '../../models/friend-request.model';
 import FriendAcceptanceButton from '../../components/FriendAcceptanceButton';
+import { SocketContext } from '../../contexts/Socket';
 
 function Info() {
   const navigation = useNavigation<any>();
   const [isLoading, setIsLoading] = useState(true);
   const { userId } = useRoute().params as { userId: number };
   const { user: self, friends } = useContext(UserContext);
+  const { client } = useContext(SocketContext);
 
   const [user, setUser] = useState<IUser | null>(null);
   const [friendRequest, setFriendRequest] = useState<IFriendRequest>();
@@ -29,7 +31,23 @@ function Info() {
     }
     return true;
   }, [userId, friends]);
-
+  const handleDeleteFriend = async () => {
+    const e = () =>
+      api.post('/users/delete-friend/' + userId).then(() => {
+        client?.emit('delete-friend', user?.id, userId);
+        navigation.navigate('Home');
+      });
+    if (Platform.OS === 'web') {
+      if (window.confirm('Bạn có muốn xóa người bạn này không?')) {
+        e();
+      }
+    } else {
+      Alert.alert('Xóa bạn bè', `Bạn có muốn xóa người bạn này không?`, [
+        { text: 'OK', onPress: e },
+        { text: 'Cancel', onPress: () => {} },
+      ]);
+    }
+  };
   const handleAddFriend = useCallback(() => {
     setIsLoading(true);
     api
@@ -130,7 +148,7 @@ function Info() {
                 </TouchableOpacity>
               </View>
               <View id="delete-btn" style={{ ...styles.roundBtn, ...styles.delete }}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={handleDeleteFriend}>
                   <AntDesignIcon name="deleteuser" size={24} color={color.white} />
                 </TouchableOpacity>
               </View>

@@ -201,6 +201,18 @@ class UserService extends Service {
       };
     });
   }
+
+  async deleteFriend(uid1: number, uid2: number) {
+    const _ = await this.queryOne(
+      `
+      DELETE FROM friend_rel 
+      WHERE (uid1 = $1 AND uid2 = $2)
+      OR (uid1 = $2 AND uid2 = $1);
+    `,
+      [uid1, uid2],
+    );
+    return _;
+  }
 }
 
 export default new UserService();

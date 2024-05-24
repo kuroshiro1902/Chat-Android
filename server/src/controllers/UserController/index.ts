@@ -136,6 +136,20 @@ class UserController {
       serverError(res);
     }
   }
+
+  async deleteFriend(req: ApiRequest, res: ApiResponse) {
+    try {
+      // @ts-ignore
+      const { id: userId } = req.user;
+      const friendId = +(req.params.friendId as string);
+
+      const _ = await userService.deleteFriend(userId, friendId);
+      return res.status(EStatusCode.SUCCESS).json({ isSuccess: true, data: friendId });
+    } catch (error) {
+      console.error(error);
+      serverError(res);
+    }
+  }
 }
 
 export default new UserController();

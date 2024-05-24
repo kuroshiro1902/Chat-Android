@@ -19,7 +19,7 @@ function Sidebar({ navigation }: any) {
       <Drawer.Screen
         name="Home"
         component={Home}
-        options={{ drawerLabel: 'Trang chủ', headerStyle: { height: 36 }, title: '' }}
+        options={{ drawerLabel: 'Trang chủ', headerStyle: { height: 36 }, title: '', unmountOnBlur: true }}
       ></Drawer.Screen>
       <Drawer.Screen
         name="Login"

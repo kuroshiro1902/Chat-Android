@@ -18,7 +18,7 @@ export interface SocketData {
 }
 export const SocketContext = createContext<SocketData>({} as SocketData);
 function SocketProvider({ children, navigation }: any) {
-  const { user, setUser, setOnlineFriendIds, setIsNotReadMessageOfFriendIds } = useContext(UserContext);
+  const { user, setUser, setOnlineFriendIds, setIsNotReadMessageOfFriendIds, refetchFriends } = useContext(UserContext);
   const [client, setClient] = useState<Socket | null>(null);
 
   const initEventListeners = useCallback((client: Socket) => {
@@ -50,9 +50,12 @@ function SocketProvider({ children, navigation }: any) {
         SocketHandler.deleteMessage?.(messageId);
       },
       'newest-message': (data: IMessage) => {
-        console.log(data);
+        console.log('newest message: ', data);
 
         SocketHandler.newestMessage(data);
+      },
+      'refetch-friends': () => {
+        refetchFriends();
       },
       message: (data: IMessage) => {
         console.log(data);

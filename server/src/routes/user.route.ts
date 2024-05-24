@@ -13,4 +13,5 @@ userRouter.get('/friend-request/:receiverId', (req, res) => userController.getFr
 userRouter.get('/all-acceptances/', (req, res) => userController.getAllAcceptances(req, res));
 userRouter.post('/add-friend/:receiverId', (req, res) => userController.addFriend(req, res));
 userRouter.post('/accept/:friendReqId', (req, res) => userController.acceptFriendRequest(req, res));
+userRouter.post('/delete-friend/:friendId', (req, res) => userController.deleteFriend(req, res));
 export default userRouter;

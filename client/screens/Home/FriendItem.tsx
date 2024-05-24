@@ -18,7 +18,8 @@ const FriendItem = ({ item }: props) => {
   console.log('rerender friend item', renderCount++, 'time');
 
   const navigation: any = useNavigation();
-  const { user, onlineFriendIds, isNotReadMessageOfFriendIds } = useContext(UserContext);
+  const { user, onlineFriendIds, isNotReadMessageOfFriendIds, setIsNotReadMessageOfFriendIds } =
+    useContext(UserContext);
   const roomInput: IRoomInput = { receiverId: item.id, name: item.name };
   const [message, setMessage] = useState<IMessage | null>(null);
 
@@ -30,7 +31,15 @@ const FriendItem = ({ item }: props) => {
       });
       console.log({ data }); // GET TOO MUCH MESSAGES, need fix
 
-      setMessage((_) => data.data.reverse().pop() || null);
+      const newestMessage = data.data.reverse().pop() || null;
+      setMessage((_) => newestMessage);
+      console.log({ item, newestMessage });
+
+      if (newestMessage) {
+        if (newestMessage.senderId === item.id && !newestMessage.isRead) {
+          setIsNotReadMessageOfFriendIds((prev) => ({ ...prev, [newestMessage.senderId]: true }));
+        }
+      }
     },
     [item?.id],
   );

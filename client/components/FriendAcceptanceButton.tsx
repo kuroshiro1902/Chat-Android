@@ -8,6 +8,7 @@ import api from '../api';
 import { IUser } from '../models/user.model';
 import { IMenuItem } from '../models/menu-item.model';
 import Overlay from './Overlay';
+import { SocketContext } from '../contexts/Socket';
 
 interface props {
   styles?: ViewStyle;
@@ -19,6 +20,7 @@ function FriendAcceptanceButton({ styles, item }: props) {
   // const [isShowForm, setIsShowForm] = useState(false);
   // const [options, setOptions] = useState<IMenuItem[]>([]);
   const { friends, refetchFriends, refetchFriendAcceptances } = useContext(UserContext);
+  const { client } = useContext(SocketContext);
   const handleAcceptFriendRequest = useCallback(() => {
     if (item.type === 'acceptance') {
       const acceptFriendRequest = async () => {
@@ -27,8 +29,9 @@ function FriendAcceptanceButton({ styles, item }: props) {
           .post<{ data?: IUser }>('/users/accept/' + item.id)
           .then(({ data }) => {
             if (data.data) {
-              refetchFriends();
+              // refetchFriends();
               refetchFriendAcceptances();
+              client?.emit('accept-friend-request', item);
               const message = 'Đã chấp nhận lời mời kết bạn của ' + data.data.name;
               window.alert(message);
               Alert.alert('Thành công!', message, [
