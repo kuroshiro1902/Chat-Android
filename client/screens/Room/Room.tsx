@@ -4,8 +4,7 @@ import { Button, FlatList, Image, Text, TextInput, TouchableHighlight, View } fr
 import { color, theme } from '../../theme';
 import FeatherIcon from 'react-native-vector-icons/AntDesign';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
-import Clipboard from '@react-native-clipboard/clipboard';
-import WhiteText from '../../components/WhiteText';
+import IonIcons from 'react-native-vector-icons/Ionicons';
 import { styles } from './styles';
 import { UserContext } from '../../contexts/User';
 import { IUser } from '../../models/user.model';
@@ -21,6 +20,7 @@ import Overlay from '../../components/Overlay';
 import Menu from './Menu';
 import { IPagination } from '../../models/pagination.model';
 import BackGroundImage from '../../components/BackgroundImage';
+import ImageUpload from './ImageUpload';
 
 const pageSize = 20;
 
@@ -40,6 +40,9 @@ function Room({ navigation }: any) {
   const [pageIndex, setPageIndex] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(true);
 
+  // image
+  const [showImageForm, setShowImageForm] = useState(false);
+
   const { receiverId, name } = params;
 
   const updateToReadMessages = useCallback(async (senderId: number) => {
@@ -58,7 +61,14 @@ function Room({ navigation }: any) {
       client?.emit('message', { senderId: user?.id, receiverId, content } as IMessage);
       return '';
     });
-  }, []);
+  }, [receiverId, user?.id]);
+
+  const handleSendImage = useCallback(
+    (content: string) => {
+      client?.emit('message', { senderId: user?.id, receiverId, content } as IMessage);
+    },
+    [receiverId, user?.id],
+  );
 
   const handleDeleteMessage = useCallback(async (message: IMessage) => {
     client?.emit('delete-message', message);
@@ -245,6 +255,13 @@ function Room({ navigation }: any) {
                 item.receiverId === receiverId
                   ? { message: styles.selfMessage, ctn: styles.selfMessageCtn, color: '#ffffff' }
                   : { message: styles.otherMessage, ctn: styles.otherMessageCtn, color: '#000000' };
+
+              const messageType = item.content.includes('res.cloudinary.com') ? 'image' : 'text';
+              let _content: any = item.content;
+              if (messageType === 'image') {
+                const { width, height, content } = JSON.parse(item.content);
+                _content = { width, height, content };
+              }
               return (
                 <View style={_styles.ctn}>
                   <TouchableHighlight
@@ -254,7 +271,14 @@ function Room({ navigation }: any) {
                     delayLongPress={150}
                   >
                     <View>
-                      <Text style={{ color: _styles.color, fontSize: 20 }}>{item.content}</Text>
+                      {messageType === 'image' ? (
+                        <Image
+                          style={{ width: _content.width, height: _content.height }}
+                          source={{ uri: _content.content }}
+                        />
+                      ) : (
+                        <Text style={{ color: _styles.color, fontSize: 20 }}>{item.content}</Text>
+                      )}
                     </View>
                   </TouchableHighlight>
                 </View>
@@ -264,6 +288,32 @@ function Room({ navigation }: any) {
             style={styles.messageListCtn}
           />
         </View>
+        <View style={{ display: 'flex', flexDirection: 'row' }}>
+          <TouchableOpacity
+            style={{ backgroundColor: color.lightGray, paddingVertical: 2, paddingHorizontal: 4, borderRadius: 4 }}
+            onPress={() => setShowImageForm(true)}
+          >
+            <Text>
+              <IonIcons name="image" size={18} /> Chọn ảnh
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {showImageForm ? (
+          <Overlay
+            isShowCloseBtn={true}
+            handleClose={() => {
+              setShowImageForm(false);
+            }}
+          >
+            <ImageUpload
+              handleSend={handleSendImage}
+              onClose={() => {
+                setShowImageForm(false);
+              }}
+              setIsLoading={setIsLoading}
+            />
+          </Overlay>
+        ) : undefined}
         <View id="message-form" style={styles.messageForm}>
           <TextInput
             style={styles.messageInput}

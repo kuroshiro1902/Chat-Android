@@ -29,13 +29,16 @@ const FriendItem = ({ item }: props) => {
         receiverId: item.id,
         options,
       });
-      console.log({ data }); // GET TOO MUCH MESSAGES, need fix
 
       const newestMessage = data.data.reverse().pop() || null;
-      setMessage((_) => newestMessage);
-      console.log({ item, newestMessage });
 
       if (newestMessage) {
+        const messageType = newestMessage.content.includes('res.cloudinary.com') ? 'image' : 'text';
+        if (messageType === 'image') {
+          setMessage({ ...newestMessage, content: '[Ảnh]' });
+        } else {
+          setMessage((_) => newestMessage);
+        }
         if (newestMessage.senderId === item.id && !newestMessage.isRead) {
           setIsNotReadMessageOfFriendIds((prev) => ({ ...prev, [newestMessage.senderId]: true }));
         }
