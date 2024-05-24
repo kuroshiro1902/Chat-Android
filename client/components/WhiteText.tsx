@@ -1,12 +1,12 @@
-import { Text } from "react-native";
+import { Text } from 'react-native';
 
 interface props {
-  children?: any,
-  style?: any
+  children?: any;
+  style?: any;
 }
 
-function WhiteText({children, style}: props) {
-  return ( <Text style={{color: '#FFF', ...style}}>{children}</Text> );
+function WhiteText({ children, style }: props) {
+  return <Text style={{ color: '#FFFFFF', ...style }}>{children}</Text>;
 }
 
 export default WhiteText;

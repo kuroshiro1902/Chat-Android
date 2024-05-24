@@ -3,16 +3,17 @@ import { Button, Image, StyleSheet, Text, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Alert } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { color, theme } from '../../theme';
-import Overlay from '../../components/Overlay';
-import WhiteText from '../../components/WhiteText';
+import { color, theme } from '../theme';
+import Overlay from './Overlay';
+import WhiteText from './WhiteText';
+import { adjustDimension } from '../utils/adjustDimension.util';
 interface props {
   onClose: () => void;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  handleSend: (content: string) => void;
+  setIsLoading?: React.Dispatch<React.SetStateAction<boolean>>;
+  urlHandler: (content: string) => void;
 }
 const cloudinaryUrl = 'https://api.cloudinary.com/v1_1/dv8beczw7/image/upload';
-function ImageUpload({ onClose, setIsLoading, handleSend }: props) {
+function ImageUpload({ onClose, setIsLoading, urlHandler }: props) {
   const [isLoadingImage, setIsLoadingImage] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [image, setImage] = useState<string | null>(null);
@@ -35,10 +36,10 @@ function ImageUpload({ onClose, setIsLoading, handleSend }: props) {
       const data = await response.json();
       const { width, height, secure_url } = data;
       const content = JSON.stringify({ content: secure_url, width, height });
-      handleSend(content);
+      urlHandler(content);
       // return data.secure_url;
     } catch (error: any) {
-      Alert.alert('Gửi thất bại', error.message, [{ text: 'OK' }]);
+      Alert.alert('Upload ảnh thất bại', error.message, [{ text: 'OK' }]);
       return null;
     } finally {
       onClose();
@@ -63,8 +64,8 @@ function ImageUpload({ onClose, setIsLoading, handleSend }: props) {
           image = result?.assets?.map((asset: any) => asset?.uri)[0];
           setImage(image);
           Image.getSize(image, (width, height) => {
-            const aspectRatio = width / height;
-            setDimensions({ width: 200, height: 200 / aspectRatio });
+            const newDimensions = adjustDimension({ width, height });
+            setDimensions(newDimensions);
           });
         }
       } else {
@@ -92,7 +93,7 @@ function ImageUpload({ onClose, setIsLoading, handleSend }: props) {
               uploadToCloudinary(image);
             }}
           >
-            <WhiteText>GỬI ẢNH</WhiteText>
+            <WhiteText style={{ fontWeight: '600' }}>UPLOAD</WhiteText>
           </TouchableOpacity>
         ) : undefined}
       </View>
@@ -115,6 +116,9 @@ const styles = StyleSheet.create({
     height: '90%',
     width: 240,
     alignItems: 'center',
+    backgroundColor: '#ffffff40',
+    padding: 8,
+    borderRadius: 8,
   },
   image: {},
   buttons: {

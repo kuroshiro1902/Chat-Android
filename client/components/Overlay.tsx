@@ -8,7 +8,7 @@ function Overlay({ children, handleClose, isShowCloseBtn }: any) {
         {children}
         {isShowCloseBtn ? (
           <Pressable style={styles.closeBtn} onPress={handleClose}>
-            <Icon name="closecircle" size={24} style={{ color: color.red }} />
+            <Icon name="closecircle" size={24} style={{ color: color.crimson }} />
           </Pressable>
         ) : undefined}
       </View>

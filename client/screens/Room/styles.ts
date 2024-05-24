@@ -86,4 +86,13 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  uploadImageBtn: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    backgroundColor: color.lightGray,
+    paddingVertical: 2,
+    paddingHorizontal: 4,
+    borderRadius: 4,
+  },
 });

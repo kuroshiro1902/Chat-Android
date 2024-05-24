@@ -1,5 +1,5 @@
-const ip = '192.168.1.15';
-// const ip = 'localhost';
+// const ip = '192.168.1.15';
+const ip = 'localhost';
 export const server = {
   // url: 'http://localhost:3000/api',
   url: `http://${ip}:3000/api`,

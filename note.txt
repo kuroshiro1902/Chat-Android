@@ -8,3 +8,4 @@
 - Trang home: Thêm nút nổi dưới phải để kết bạn
 - Hiển thị tin nhắn mới nhất
 - Thông báo tin nhắn chưa đọc
+- Auto resize ảnh khi hiển thị để không bị vượt quá container

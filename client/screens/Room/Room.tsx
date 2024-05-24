@@ -20,7 +20,8 @@ import Overlay from '../../components/Overlay';
 import Menu from './Menu';
 import { IPagination } from '../../models/pagination.model';
 import BackGroundImage from '../../components/BackgroundImage';
-import ImageUpload from './ImageUpload';
+import ImageUpload from '../../components/ImageUpload';
+import { adjustDimension } from '../../utils/adjustDimension.util';
 
 const pageSize = 20;
 
@@ -257,10 +258,10 @@ function Room({ navigation }: any) {
                   : { message: styles.otherMessage, ctn: styles.otherMessageCtn, color: '#000000' };
 
               const messageType = item.content.includes('res.cloudinary.com') ? 'image' : 'text';
-              let _content: any = item.content;
+              let iContent: any = item.content;
               if (messageType === 'image') {
                 const { width, height, content } = JSON.parse(item.content);
-                _content = { width, height, content };
+                iContent = { width, height, content };
               }
               return (
                 <View style={_styles.ctn}>
@@ -273,8 +274,8 @@ function Room({ navigation }: any) {
                     <View>
                       {messageType === 'image' ? (
                         <Image
-                          style={{ width: _content.width, height: _content.height }}
-                          source={{ uri: _content.content }}
+                          style={adjustDimension({ width: iContent.width, height: iContent.height })}
+                          source={{ uri: iContent.content }}
                         />
                       ) : (
                         <Text style={{ color: _styles.color, fontSize: 20 }}>{item.content}</Text>
@@ -288,16 +289,9 @@ function Room({ navigation }: any) {
             style={styles.messageListCtn}
           />
         </View>
-        <View style={{ display: 'flex', flexDirection: 'row' }}>
-          <TouchableOpacity
-            style={{ backgroundColor: color.lightGray, paddingVertical: 2, paddingHorizontal: 4, borderRadius: 4 }}
-            onPress={() => setShowImageForm(true)}
-          >
-            <Text>
-              <IonIcons name="image" size={18} /> Chọn ảnh
-            </Text>
-          </TouchableOpacity>
-        </View>
+        {/* <View style={{ display: 'flex', flexDirection: 'row' }}>
+          
+        </View> */}
         {showImageForm ? (
           <Overlay
             isShowCloseBtn={true}
@@ -306,20 +300,24 @@ function Room({ navigation }: any) {
             }}
           >
             <ImageUpload
-              handleSend={handleSendImage}
+              urlHandler={handleSendImage}
               onClose={() => {
                 setShowImageForm(false);
               }}
-              setIsLoading={setIsLoading}
             />
           </Overlay>
         ) : undefined}
         <View id="message-form" style={styles.messageForm}>
+          <TouchableOpacity style={styles.uploadImageBtn} onPress={() => setShowImageForm(true)}>
+            <Text style={{ color: color.blue }}>
+              <IonIcons name="image" size={24} />
+            </Text>
+          </TouchableOpacity>
           <TextInput
             style={styles.messageInput}
             maxLength={255}
             multiline
-            placeholder="Gửi tin nhắn"
+            placeholder="Soạn tin nhắn"
             value={messageInputValue}
             onChangeText={(text) => {
               setMessageInputValue(text);
